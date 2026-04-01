@@ -3,15 +3,3 @@
 * {
     font-family: "Roboto", sans-serif;
 }
-
-@layer base {
-    button {
-        @apply cursor-pointer;
-    }
-    input:not([type="checkbox"]) {
-        @apply outline-none border border-gray-300 rounded-lg focus: ring focus: ring-blue-500 focus: border-blue-500;
-    }
-    textarea {
-        @apply outline-none border border-gray-300 rounded-lg resize-none focus: ring focus: ring-blue-500 focus: border-blue-500;
-    }
-}
