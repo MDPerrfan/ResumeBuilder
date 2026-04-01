@@ -1,9 +1,93 @@
 import React from 'react'
+import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
+import { dummyResumeData } from '../assets/assets';
 
 export default function Dashboard() {
+  const [allresume, setAllresume] = React.useState([]);
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const[showUploadModal, setShowUploadModal] = React.useState(false);
+
+  const user = { name: 'Parves' }
+  const colors = ['#9333ea', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#14b8a6', '#eab308', '#4f46e5', '#16a34a'];
+  
+  const fetchAllResume = async () => {
+    try {
+
+      setAllresume(dummyResumeData);
+
+    } catch (error) {
+      console.error('Error fetching resumes:', error);
+    }
+  };
+
+
+  React.useEffect(() => {
+    fetchAllResume();
+  }, []);
+
+
   return (
     <div>
-      <h1>Dashboard Page</h1>
+      <div className='max-w-7xl mx-auto px-4 py-8'>
+        <p className='text-2xl font-medium mb-6 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent sm:hidden'>
+          Welcome, {user?.name}!
+        </p>
+
+        <div className='flex gap-4'>
+          {/* Create Resume */}
+          <button className='flex flex-col items-center justify-center gap-2 w-full bg-white sm:max-w-36 h-48 rounded-lg text-slate-600 border border-dashed border-slate-300 group hover:border-indigo-500 transition-all duration-300 cursor-pointer hover:shadow-lg'>
+            <PlusIcon className='size-11 transition-all duration-300 p-2.5 bg-gradient-to-br from-indigo-300 to-indigo-500 text-white rounded-full' />
+            <p className='text-sm group-hover:text-indigo-600 transition-all duration-300'>
+              Create New Resume
+            </p>
+          </button>
+
+          {/* Upload Resume */}
+          <button className='flex flex-col items-center justify-center gap-2 w-full bg-white sm:max-w-36 h-48 rounded-lg text-slate-600 border border-dashed border-slate-300 group-hover:border-purple-500 transition-all duration-300 cursor-pointer hover:shadow-lg'>
+            <UploadCloudIcon className='size-11 transition-all duration-300 p-2.5 bg-gradient-to-br from-purple-300 to-purple-500 text-white rounded-full' />
+            <p className='text-sm group-hover:text-purple-600 transition-all duration-300'>
+              Upload Existing Resume
+            </p>
+          </button>
+        </div>
+        <hr className='border-slate-300 my-6 sm:w-[305px]' />
+
+        {/* Recent Resumes Section */}
+        <div className='grid grid-cols-2 sm:flex flex-wrap gap-4'>
+          {allresume.map((resume, index) => {
+            const baseColor = colors[index % colors.length];
+            return (
+             <button key={index} className='relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg cursor-pointer gap-2 border group hover:shadow-lg transition-all duration-300' style={{background:`linear-gradient(135deg,${baseColor}10,${baseColor}40)`, borderColor: baseColor+'40'}}>
+
+                <FilePenLineIcon className='size-7 group-hover:scale-105 transition-all' style={{color:baseColor}} />
+                <p className='text-sm group-hover:scale-105 transition-all' style={{color:baseColor}}>
+                  {resume.title}
+                </p>
+                <p className='text-[11px] text-slate-400 absolute bottom-2  group-hover:text-slate-500 transition-all duration-300 text-center' style={{color:baseColor+'90'}}>
+                  Updated on {new Date(resume.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+                <div className='absolute top-1 right-1 group-hover:flex items-center hidden'>
+                  <TrashIcon className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
+                  <PencilIcon className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
+                </div>
+             </button>
+            );
+          })}
+        </div>
+        {
+          showCreateModal && (
+
+            <form action="" className='fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-10 flex items-center justify-center'>
+              <div>
+                <h2>Create New Resume</h2>
+                <input type="text" placeholder="Resume Title" className='w-full px-4 py-2 mb-4 focus:border-green-600 ring-green-600' />
+                <button className='w-full py-2 bg-green-600 text-white rounded hover:bg-green-700  transition-colors '>Create</button>
+                <XIcon className='absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer' onClick={()=>setShowCreateModal(false)}/>
+              </div>
+            </form>
+          )
+        }
+      </div>
     </div>
   )
 }
