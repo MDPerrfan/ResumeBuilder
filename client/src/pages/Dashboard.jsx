@@ -31,7 +31,7 @@ export default function Dashboard() {
     try {
       // Implement API call to create resume here
       setShowCreateModal(false);
-      navigate(`/app/builder/title=${'res123'}`);
+      navigate(`/app/builder/title=${'resume._id'}`);
       // After successful creation, fetch the updated list of resumes
       fetchAllResume();
     } catch (error) {
@@ -45,7 +45,7 @@ export default function Dashboard() {
     try {
       // Implement API call to upload resume here
       setShowUploadModal(false);
-      navigate(`/app/builder/title=${'res123'}`);
+      navigate(`/app/builder/title=${'resumeId'}`);
       fetchAllResume();
     } catch (error) {
       console.error('Error uploading resume:', error);
@@ -98,7 +98,7 @@ const deleteResume = async (id) => {
           {allresume.map((resume, index) => {
             const baseColor = colors[index % colors.length];
             return (
-              <button onClick={() => navigate(`/app/builder/title=${resume._id}`)} key={index} className='relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg cursor-pointer gap-2 border group hover:shadow-lg transition-all duration-300' style={{ background: `linear-gradient(135deg,${baseColor}10,${baseColor}40)`, borderColor: baseColor + '40' }}>
+              <button onClick={() => navigate(`/app/builder/${resume._id}`)} key={index} className='relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg cursor-pointer gap-2 border group hover:shadow-lg transition-all duration-300' style={{ background: `linear-gradient(135deg,${baseColor}10,${baseColor}40)`, borderColor: baseColor + '40' }}>
 
                 <FilePenLineIcon className='size-7 group-hover:scale-105 transition-all' style={{ color: baseColor }} />
                 <p className='text-sm group-hover:scale-105 transition-all' style={{ color: baseColor }}>

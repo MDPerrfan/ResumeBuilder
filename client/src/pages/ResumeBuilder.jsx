@@ -84,14 +84,13 @@ export default function ResumeBuilder() {
               </div>
               {/*section content*/}
               <div className='space-y-6'>
-                  {
-                    sections[activeSection].id === 'personal_info' && (
-                      <div>
-                       <PersonalinfoForm data={resumeData.personal_info} onChange={(field, value) => setResumeData(prev => ({ ...prev, personal_info: { ...prev.personal_info, [field]: value } }))} removeBg={removeBg} setRemoveBg={setRemoveBg} />
-                      </div>
-                    )
-
-                  }
+                {
+                  sections[activeSection].id === 'personal_info' && (
+                    <div>
+                      <PersonalinfoForm data={resumeData.personal_info} onChange={(field, value) => setResumeData(prev => ({ ...prev, personal_info: { ...prev.personal_info, [field]: value } }))} removeBg={removeBg} setRemoveBg={setRemoveBg} />
+                    </div>
+                  )
+                }
               </div>
             </div>
           </div>
