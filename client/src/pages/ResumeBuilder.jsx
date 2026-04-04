@@ -70,7 +70,7 @@ export default function ResumeBuilder() {
               <hr className='absolute top-0 left-0 h-1 bg-gradient-to-r from-purple-600 to-purple-800 border-none transition-all duration-2000' style={{ width: `${activeSection * 100 / (sections.length - 1)}%` }} />
               {/*section navigation */}
               <div className='flex justify-between items-center mb-6 border-b border-gray-300 py-1'>
-                <div>
+                <div className='flex justify-between items-center py-1'>
                   <TemplateSelector selectedTemplate={resumeData.template} onChange={(template) => setResumeData(prev => ({ ...prev, template }))} />
                 </div>
 

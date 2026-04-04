@@ -20,7 +20,7 @@ console.log(selectedTemplate)
          {isOpen && (
             <div className='absolute top-full w-xs rounded-md bg-white shadow-lg border border-gray-200 p-3 space-y-3 mt-2 z-10'>
                 {templates.map((temp) => (
-                    <div key={temp.id} onClick={() => { onChange(temp.id); setIsOpen(false) }} className={`px-4 py-3 cursor-pointer ${selectedTemplate === temp.id ? 'border-purple-500 bg-purple-100' : 'border border-gray-200 hover:border-gray-400 hover:bg-gray-100'}`}>
+                    <div  key={temp.id} onClick={() => { onChange(temp.id); setIsOpen(false) }} className={`relative px-4 py-3 cursor-pointer ${selectedTemplate === temp.id ? 'border-purple-500 bg-purple-200' : 'border border-gray-200 hover:border-gray-400 hover:bg-gray-100'}`}>
                       
                         {
                             selectedTemplate === temp.id && (
