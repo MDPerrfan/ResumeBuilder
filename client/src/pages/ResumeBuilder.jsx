@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { dummyResumeData } from '../assets/assets';
 import { ArrowLeftIcon, UserIcon, BriefcaseIcon, GraduationCapIcon, LightbulbIcon, FolderIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import PersonalinfoForm from '../Components/PersonalinfoForm';
+import ResumePreview from '../Components/ResumePreview';
 
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
@@ -97,9 +98,16 @@ export default function ResumeBuilder() {
 
 
           {/*right side - resume preview*/}
-          <div>
+          <div className='lg:col-span-7 max-lg:mt-6'>
 
+                <div>
+                  {/*buttons*/}
+                </div>
+
+                {/*Resume Preview*/}
+                <ResumePreview data={resumeData} template={resumeData.template} accentColor={resumeData.accent_color} classes={'mx-auto'} />
           </div>
+
         </div>
       </div>
     </div>
