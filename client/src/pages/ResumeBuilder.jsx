@@ -8,6 +8,13 @@ import TemplateSelector from '../Components/TemplateSelector';
 import ColorPicker from '../Components/ColorPicker';
 import ProfessionalSummaryForm from '../Components/ProfessionalSummaryForm';
 import ExperienceForm from '../Components/ExperienceForm';
+import EducationForm from '../Components/EducationForm';
+import LanguageForm from '../Components/LanguageForm';
+import CustomSectionForm from '../Components/CustomSectionForm';
+import ProjectForm from '../Components/ProjectForm';
+import SkillsForm from '../Components/SkillsForm';
+
+const DEFAULT_CV_SECTION_ORDER = ['experience', 'education', 'project', 'skills', 'languages', 'custom_sections'];
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
   const [resumeData, setResumeData] = React.useState({
@@ -16,7 +23,11 @@ export default function ResumeBuilder() {
     personal_info: {},
     experience: [],
     education: [],
+    languages: [],
+    custom_sections: [],
     skills: [],
+    project: [],
+    section_order: DEFAULT_CV_SECTION_ORDER,
     template: "classic",
     accent_color: "#000000",
     public: false
@@ -25,7 +36,7 @@ export default function ResumeBuilder() {
   const fetchResumeData = async () => {
     const resume = dummyResumeData.find(r => r._id === resumeId);
     if (resume) {
-      setResumeData(resume);
+      setResumeData({ ...resume, section_order: resume.section_order || DEFAULT_CV_SECTION_ORDER });
       document.title = resume.title + " - Resume Builder";
       return;
     }
@@ -33,7 +44,7 @@ export default function ResumeBuilder() {
     const uploadedRaw = sessionStorage.getItem(`uploaded-resume-${resumeId}`);
     if (uploadedRaw) {
       const uploadedResume = JSON.parse(uploadedRaw);
-      setResumeData((prev) => ({ ...prev, ...uploadedResume }));
+      setResumeData((prev) => ({ ...prev, ...uploadedResume, section_order: uploadedResume.section_order || DEFAULT_CV_SECTION_ORDER }));
       document.title = (uploadedResume.title || "Resume") + " - Resume Builder";
     }
   };
@@ -44,15 +55,43 @@ export default function ResumeBuilder() {
 
   const sections = [
     { id: 'personal_info', title: 'Personal Info', icon: UserIcon },
-    { id: 'summary', titile: 'Professional Summary', icon: UserIcon },
+    { id: 'summary', title: 'Professional Summary', icon: UserIcon },
     { id: 'experiences', title: 'Experience', icon: BriefcaseIcon },
     { id: 'education', title: 'Education', icon: GraduationCapIcon },
+    { id: 'projects', title: 'Projects', icon: FolderIcon },
     { id: 'skills', title: 'Skills', icon: LightbulbIcon },
-    { id: 'projects', title: 'Projects', icon: FolderIcon }
+    { id: 'languages', title: 'Languages', icon: LightbulbIcon },
+    { id: 'custom', title: 'Other', icon: FolderIcon }
 
   ];
 
-  const activeSectionData = resumeData[sections[activeSection].id];
+  const reorderableSectionsMap = {
+    experiences: 'experience',
+    education: 'education',
+    projects: 'project',
+    skills: 'skills',
+    languages: 'languages',
+    custom: 'custom_sections',
+  };
+
+  const activeReorderKey = reorderableSectionsMap[sections[activeSection].id];
+  const currentOrder = resumeData.section_order || DEFAULT_CV_SECTION_ORDER;
+  const activeOrderIndex = activeReorderKey ? currentOrder.indexOf(activeReorderKey) : -1;
+  const canMoveUp = activeOrderIndex > 0;
+  const canMoveDown = activeOrderIndex >= 0 && activeOrderIndex < currentOrder.length - 1;
+
+  const moveActiveSection = (direction) => {
+    if (!activeReorderKey) return;
+    setResumeData((prev) => {
+      const order = [...(prev.section_order || DEFAULT_CV_SECTION_ORDER)];
+      const index = order.indexOf(activeReorderKey);
+      if (index < 0) return prev;
+      const target = direction === 'up' ? index - 1 : index + 1;
+      if (target < 0 || target >= order.length) return prev;
+      [order[index], order[target]] = [order[target], order[index]];
+      return { ...prev, section_order: order };
+    });
+  };
 
   React.useEffect(() => {
     fetchResumeData();
@@ -77,7 +116,7 @@ export default function ResumeBuilder() {
             <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-6 pt-1'>
               {/*progress bar using activeSection*/}
               <hr className='absolute top-0 left-0 right-0 border-2 border-gray-200' />
-              <hr className='absolute top-0 left-0 h-1 bg-gradient-to-r from-purple-600 to-purple-800 border-none transition-all duration-2000' style={{ width: `${activeSection * 100 / (sections.length - 1)}%` }} />
+              <hr className='absolute top-0 left-0 h-1 bg-linear-to-r from-purple-600 to-purple-800 border-none transition-all duration-2000' style={{ width: `${activeSection * 100 / (sections.length - 1)}%` }} />
               {/*section navigation */}
               <div className='flex justify-between items-center mb-6 border-b border-gray-300 py-1'>
                 <div className='flex justify-between items-center py-1'>
@@ -86,6 +125,16 @@ export default function ResumeBuilder() {
                 </div>
 
                 <div className='flex items-center'>
+                  {activeReorderKey && (
+                    <div className='flex items-center gap-1 mr-2 border-r border-gray-300 pr-2'>
+                      <button onClick={() => moveActiveSection('up')} disabled={!canMoveUp} className={`text-xs px-2 py-1 rounded ${canMoveUp ? 'hover:bg-gray-100 text-gray-700' : 'text-gray-400 cursor-not-allowed'}`}>
+                        Move Up
+                      </button>
+                      <button onClick={() => moveActiveSection('down')} disabled={!canMoveDown} className={`text-xs px-2 py-1 rounded ${canMoveDown ? 'hover:bg-gray-100 text-gray-700' : 'text-gray-400 cursor-not-allowed'}`}>
+                        Move Down
+                      </button>
+                    </div>
+                  )}
                   {activeSection > 0 && <button onClick={() => setActiveSection(prev => prev - 1)} disabled={activeSection === 0} className='flex items-center gap-1 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all '>
                     <ChevronLeft className='size-4' />
                     Previous
@@ -118,6 +167,41 @@ export default function ResumeBuilder() {
                   sections[activeSection].id === 'experiences' && (
                     <div>
                     <ExperienceForm data={resumeData.experience} onChange={(data)=>setResumeData(prev=>({...prev,experience:data}))} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'education' && (
+                    <div>
+                      <EducationForm data={resumeData.education || []} onChange={(data) => setResumeData(prev => ({ ...prev, education: data }))} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'projects' && (
+                    <div>
+                      <ProjectForm data={resumeData.project || []} onChange={(data) => setResumeData(prev => ({ ...prev, project: data }))} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'skills' && (
+                    <div>
+                      <SkillsForm data={resumeData.skills || []} onChange={(data) => setResumeData(prev => ({ ...prev, skills: data }))} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'languages' && (
+                    <div>
+                      <LanguageForm data={resumeData.languages || []} onChange={(data) => setResumeData(prev => ({ ...prev, languages: data }))} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'custom' && (
+                    <div>
+                      <CustomSectionForm data={resumeData.custom_sections || []} onChange={(data) => setResumeData(prev => ({ ...prev, custom_sections: data }))} />
                     </div>
                   )
                 }

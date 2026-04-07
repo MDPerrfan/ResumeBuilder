@@ -12,7 +12,7 @@ export default function ResumePreview({ data, template, accentColor, classes }) 
                 return <ClassicTemplate data={data} accentColor={accentColor} />
             case 'modern':
                 return <ModernTemplate data={data} accentColor={accentColor} />
-            case 'minimal_image':
+            case 'minimal-image':
                 return <MinimalImageTemplate data={data} accentColor={accentColor} />
             case 'minimal':
                 return <MinimalTemplate data={data} accentColor={accentColor} />

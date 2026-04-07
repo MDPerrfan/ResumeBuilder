@@ -102,6 +102,22 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
                             </ul>
                         </section>
                     )}
+
+                    {/* Languages */}
+                    {data.languages && data.languages.length > 0 && (
+                        <section className="mt-8">
+                            <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
+                                LANGUAGES
+                            </h2>
+                            <ul className="space-y-1 text-sm">
+                                {data.languages.map((language, index) => (
+                                    <li key={index}>
+                                        {language.name}{language.proficiency ? ` (${language.proficiency})` : ''}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
                 </aside>
 
                 {/* Right Content */}
@@ -162,7 +178,7 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
                             <div className="space-y-4">
                                 {data.project.map((project, index) => (
                                     <div key={index}>
-                                        <h3 className="text-md font-medium text-zinc-800 mt-3">{project.name}</h3>
+                                        <h3 className="text-md font-medium text-zinc-800 mt-3">{project.title || project.name}</h3>
                                         <p className="text-sm mb-1" style={{ color: accentColor }} >
                                             {project.type}
                                         </p>
@@ -173,11 +189,37 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
                                                 ))}
                                             </ul>
                                         )}
+                                        <div className="flex flex-wrap gap-4 mt-2 text-xs">
+                                            {project.live_url && (
+                                                <a className="underline text-zinc-700 break-all" href={project.live_url} target="_blank" rel="noreferrer">
+                                                    Live URL
+                                                </a>
+                                            )}
+                                            {project.github_repo && (
+                                                <a className="underline text-zinc-700 break-all" href={project.github_repo} target="_blank" rel="noreferrer">
+                                                    GitHub Repo
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </section>
                     )}
+
+                    {/* Custom Sections */}
+                    {data.custom_sections && data.custom_sections.length > 0 && data.custom_sections.map((section, sectionIndex) => (
+                        <section key={sectionIndex} className="mt-8">
+                            <h2 className="text-sm uppercase tracking-widest font-semibold" style={{ color: accentColor }}>
+                                {section.title || 'OTHER'}
+                            </h2>
+                            <ul className="list-disc list-inside text-sm text-zinc-700 mt-3 space-y-1">
+                                {(section.items || []).filter(Boolean).map((item, itemIndex) => (
+                                    <li key={itemIndex}>{item}</li>
+                                ))}
+                            </ul>
+                        </section>
+                    ))}
                 </main>
             </div>
         </div>

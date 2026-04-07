@@ -77,8 +77,20 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     <div className="space-y-4">
                         {data.project.map((proj, index) => (
                             <div key={index} className="flex flex-col gap-2 justify-between items-baseline">
-                                <h3 className="text-lg font-medium ">{proj.name}</h3>
+                                <h3 className="text-lg font-medium ">{proj.title || proj.name}</h3>
                                 <p className="text-gray-600">{proj.description}</p>
+                                <div className="flex flex-wrap gap-4 text-sm">
+                                    {proj.live_url && (
+                                        <a className="underline text-gray-700 break-all" href={proj.live_url} target="_blank" rel="noreferrer">
+                                            Live URL
+                                        </a>
+                                    )}
+                                    {proj.github_repo && (
+                                        <a className="underline text-gray-700 break-all" href={proj.github_repo} target="_blank" rel="noreferrer">
+                                            GitHub Repo
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -123,6 +135,33 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     </div>
                 </section>
             )}
+
+            {/* Languages */}
+            {data.languages && data.languages.length > 0 && (
+                <section className="mt-10">
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
+                        Languages
+                    </h2>
+
+                    <div className="text-gray-700">
+                        {data.languages.map((language) => `${language.name}${language.proficiency ? ` (${language.proficiency})` : ''}`).join(' • ')}
+                    </div>
+                </section>
+            )}
+
+            {/* Custom Sections */}
+            {data.custom_sections && data.custom_sections.length > 0 && data.custom_sections.map((section, sectionIndex) => (
+                <section className="mt-10" key={sectionIndex}>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
+                        {section.title || 'Other'}
+                    </h2>
+                    <ul className="text-gray-700 list-disc pl-6 space-y-2">
+                        {(section.items || []).filter(Boolean).map((item, itemIndex) => (
+                            <li key={itemIndex}>{item}</li>
+                        ))}
+                    </ul>
+                </section>
+            ))}
         </div>
     );
 }

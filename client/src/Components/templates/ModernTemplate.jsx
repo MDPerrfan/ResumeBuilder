@@ -109,7 +109,7 @@ const ModernTemplate = ({ data, accentColor }) => {
 
 									<div className="flex justify-between items-start">
 										<div>
-											<h3 className="text-lg font-medium text-gray-900">{p.name}</h3>
+											<h3 className="text-lg font-medium text-gray-900">{p.title || p.name}</h3>
 										</div>
 									</div>
 									{p.description && (
@@ -117,6 +117,18 @@ const ModernTemplate = ({ data, accentColor }) => {
 											{p.description}
 										</div>
 									)}
+									<div className="flex flex-wrap gap-4 mt-2 text-sm">
+										{p.live_url && (
+											<a className="underline text-gray-700 break-all" href={p.live_url} target="_blank" rel="noreferrer">
+												Live URL
+											</a>
+										)}
+										{p.github_repo && (
+											<a className="underline text-gray-700 break-all" href={p.github_repo} target="_blank" rel="noreferrer">
+												GitHub Repo
+											</a>
+										)}
+									</div>
 								</div>
 							))}
 						</div>
@@ -168,7 +180,41 @@ const ModernTemplate = ({ data, accentColor }) => {
 							</div>
 						</section>
 					)}
+
+					{/* Languages */}
+					{data.languages && data.languages.length > 0 && (
+						<section>
+							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+								Languages
+							</h2>
+							<div className="space-y-2 text-gray-700">
+								{data.languages.map((language, index) => (
+									<p key={index}>
+										{language.name}{language.proficiency ? ` - ${language.proficiency}` : ''}
+									</p>
+								))}
+							</div>
+						</section>
+					)}
 				</div>
+
+				{/* Custom Sections */}
+				{data.custom_sections && data.custom_sections.length > 0 && (
+					<div className="mt-8 space-y-8">
+						{data.custom_sections.map((section, sectionIndex) => (
+							<section key={sectionIndex}>
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+									{section.title || 'Other'}
+								</h2>
+								<ul className="space-y-2 text-gray-700 list-disc pl-6">
+									{(section.items || []).filter(Boolean).map((item, itemIndex) => (
+										<li key={itemIndex}>{item}</li>
+									))}
+								</ul>
+							</section>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	);
