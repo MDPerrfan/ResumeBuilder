@@ -25,7 +25,7 @@ export default function Hero() {
                     </a>
                     <div className='w-0.5 h-8 bg-gray-50 hidden md:flex'></div>
                     <div id="menu" className={`max-md:absolute max-md:bg-white/70 max-md:h-[785px] max-md:overflow-hidden max-md:transition-[width] max-md:duration-300 max-md:top-0 max-md:left-0 max-md:flex-col max-md:justify-center max-md:backdrop-blur flex items-center gap-8 z-50 md:gap-10 flex-1 ${mobileOpen ? 'max-md:w-full' : 'max-md:w-0'}`}>
-                        <Link to="#" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Home</Link>
+                        <Link to="/" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Home</Link>
                         <Link to="#features" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Features</Link>
                         <Link to="#testimonials" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Testimonials</Link>
                         <Link to="#contact" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Contact</Link>

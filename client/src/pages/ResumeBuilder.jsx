@@ -7,13 +7,14 @@ import ResumePreview from '../Components/ResumePreview';
 import TemplateSelector from '../Components/TemplateSelector';
 import ColorPicker from '../Components/ColorPicker';
 import ProfessionalSummaryForm from '../Components/ProfessionalSummaryForm';
+import ExperienceForm from '../Components/ExperienceForm';
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
   const [resumeData, setResumeData] = React.useState({
     _id: '',
     title: '',
     personal_info: {},
-    experiences: [],
+    experience: [],
     education: [],
     skills: [],
     template: "classic",
@@ -102,6 +103,13 @@ export default function ResumeBuilder() {
                   sections[activeSection].id === 'summary' && (
                     <div>
                       <ProfessionalSummaryForm data={resumeData.professional_summary} onChange={(data) => setResumeData(prev => ({ ...prev, professional_summary: data }))} setResumeData={setResumeData} />
+                    </div>
+                  )
+                }
+                {
+                  sections[activeSection].id === 'experiences' && (
+                    <div>
+                    <ExperienceForm data={resumeData.experience} onChange={(data)=>setResumeData(prev=>({...prev,experience:data}))} />
                     </div>
                   )
                 }
