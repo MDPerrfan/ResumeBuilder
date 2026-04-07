@@ -14,7 +14,7 @@ export default function Features() {
                 </div>
                 <Title title="Powerful Features to Supercharge Your Resume" description="Our AI-powered resume builder offers a suite of features designed to help you create a standout resume that gets noticed by employers." />
                 <div className='flex flex-col items-center my-10 scroll-mt-12 '>
-                    <div id='features' className="flex flex-col md:flex-row items-center justify-center md:mx-30">
+                    <div className="flex flex-col md:flex-row items-center justify-center md:mx-30">
                         <img className="max-w-2xl w-full xl:-ml-32" src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/features/group-image-1.png" alt="" />
                         <div className="px-4 md:px-0" onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
                             <div className={"flex items-center justify-center gap-6 max-w-md group cursor-pointer"}>

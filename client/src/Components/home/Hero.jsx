@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom'
 
 export default function Hero() {
     const [mobileOpen, setMobileOpen] = React.useState(false)
+    const scrollToSection = (sectionId) => {
+        const section = document.getElementById(sectionId)
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        setMobileOpen(false)
+    }
 
     return (
         <>
@@ -25,14 +32,14 @@ export default function Hero() {
                     </a>
                     <div className='w-0.5 h-8 bg-gray-50 hidden md:flex'></div>
                     <div id="menu" className={`max-md:absolute max-md:bg-white/70 max-md:h-[785px] max-md:overflow-hidden max-md:transition-[width] max-md:duration-300 max-md:top-0 max-md:left-0 max-md:flex-col max-md:justify-center max-md:backdrop-blur flex items-center gap-8 z-50 md:gap-10 flex-1 ${mobileOpen ? 'max-md:w-full' : 'max-md:w-0'}`}>
-                        <Link to="/" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Home</Link>
-                        <Link to="#features" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Features</Link>
-                        <Link to="#testimonials" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Testimonials</Link>
-                        <Link to="#contact" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Contact</Link>
-                        <Link to="/app?state=login" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Login</Link>
+                        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Home</button>
+                        <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Features</button>
+                        <button onClick={() => scrollToSection('testimonials')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Testimonials</button>
+                        <button onClick={() => scrollToSection('contact')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Contact</button>
+                        <Link to="/login" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Login</Link>
 
                         <button id="close-menu" onClick={() => setMobileOpen(false)} className="md:hidden bg-violet-500 active:bg-violet-600 text-white p-2 rounded-md aspect-square font-medium transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M18 6 6 18" />
                                 <path d="m6 6 12 12" />
                             </svg>
@@ -45,7 +52,7 @@ export default function Hero() {
                         </button>
 
                         <button id="open-menu" onClick={() => setMobileOpen(true)} className="md:hidden text-gray-700 p-2 rounded-md aspect-square font-medium transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M4 12h16" />
                                 <path d="M4 18h16" />
                                 <path d="M4 6h16" />
@@ -88,7 +95,7 @@ export default function Hero() {
                 </div>
 
                 <div className='scroll-down flex flex-col items-center gap-4 mt-20 animate-bounce cursor-pointer'>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 9A7 7 0 1 0 5 9v6a7 7 0 1 0 14 0zm-7-3v4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 9A7 7 0 1 0 5 9v6a7 7 0 1 0 14 0zm-7-3v4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     <p className='text-sm text-black/50'>Scroll down</p>
                 </div>
             </section>

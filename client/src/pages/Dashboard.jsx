@@ -2,6 +2,7 @@ import React from 'react'
 import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
 import { dummyResumeData } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
+import { parseResumePdf } from '../utils/parseResumePdf';
 
 export default function Dashboard() {
 
@@ -11,6 +12,8 @@ export default function Dashboard() {
   const [title, setTitle] = React.useState('');
   const [resumeFile, setResumeFile] = React.useState(null);
   const [editResumeId, setEditResumeId] = React.useState(null);
+  const [uploadError, setUploadError] = React.useState('');
+  const [isUploading, setIsUploading] = React.useState(false);
 
   const user = { name: 'Parves' }
   const colors = ['#9333ea', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#14b8a6', '#eab308', '#4f46e5', '#16a34a'];
@@ -43,12 +46,40 @@ export default function Dashboard() {
   const uploadResume = async (e) => {
     e.preventDefault();
     try {
-      // Implement API call to upload resume here
+      if (!resumeFile) {
+        setUploadError('Please select a PDF resume first.');
+        return;
+      }
+
+      setIsUploading(true);
+      setUploadError('');
+      const extractedData = await parseResumePdf(resumeFile);
+      const generatedId = `upload-${Date.now()}`;
+
+      const mappedResume = {
+        _id: generatedId,
+        title: title.trim() || extractedData.title || 'Uploaded Resume',
+        personal_info: extractedData.personal_info || {},
+        professional_summary: extractedData.professional_summary || '',
+        experience: extractedData.experience || [],
+        education: extractedData.education || [],
+        skills: extractedData.skills || [],
+        template: 'classic',
+        accent_color: '#4F39F6',
+        public: false,
+      };
+
+      sessionStorage.setItem(`uploaded-resume-${generatedId}`, JSON.stringify(mappedResume));
       setShowUploadModal(false);
-      navigate(`/app/builder/title=${'resumeId'}`);
+      setResumeFile(null);
+      setTitle('');
+      navigate(`/app/builder/${generatedId}`);
       fetchAllResume();
     } catch (error) {
       console.error('Error uploading resume:', error);
+      setUploadError('Could not extract resume data from this PDF. Try another file format or clearer PDF.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -164,9 +195,10 @@ const deleteResume = async (id) => {
                       )}
                     </div>
                   </label>
-                  <input id="resume-input" type="file" className='hidden' required accept='pdf' onChange={(e) => setResumeFile(e.target.files[0])} />
+                  <input id="resume-input" type="file" className='hidden' required accept='.pdf,application/pdf' onChange={(e) => setResumeFile(e.target.files[0])} />
                 </div>
-                <button className='cursor-pointer w-full py-2 bg-green-600 text-white rounded hover:bg-green-700  transition-colors '>Upload</button>
+                {uploadError && <p className='text-sm text-red-500 mb-3'>{uploadError}</p>}
+                <button disabled={isUploading} className='cursor-pointer w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors '>{isUploading ? 'Extracting...' : 'Upload'}</button>
                 <XIcon className='absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer' onClick={() => { setShowUploadModal(false); setResumeFile(null) }} />
               </div>
             </form>

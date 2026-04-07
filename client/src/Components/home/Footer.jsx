@@ -1,6 +1,6 @@
 export default function Footer() {
     return (
-        <footer className="w-full bg-gradient-to-b from-[#F1EAFF] to-[#FFFFFF] text-gray-800">
+        <footer id="contact" className="w-full bg-gradient-to-b from-[#F1EAFF] to-[#FFFFFF] text-gray-800 scroll-mt-12">
             <div className="max-w-7xl mx-auto px-6 py-16 flex flex-col items-center">
                 <div className="flex items-center space-x-3 mb-6">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >

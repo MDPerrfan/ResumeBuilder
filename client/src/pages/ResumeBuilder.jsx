@@ -27,6 +27,14 @@ export default function ResumeBuilder() {
     if (resume) {
       setResumeData(resume);
       document.title = resume.title + " - Resume Builder";
+      return;
+    }
+
+    const uploadedRaw = sessionStorage.getItem(`uploaded-resume-${resumeId}`);
+    if (uploadedRaw) {
+      const uploadedResume = JSON.parse(uploadedRaw);
+      setResumeData((prev) => ({ ...prev, ...uploadedResume }));
+      document.title = (uploadedResume.title || "Resume") + " - Resume Builder";
     }
   };
 
