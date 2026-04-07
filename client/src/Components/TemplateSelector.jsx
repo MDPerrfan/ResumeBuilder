@@ -4,7 +4,6 @@ import React from 'react'
 export default function TemplateSelector({ selectedTemplate, onChange }) {
 
     const [isOpen, setIsOpen] = React.useState(false);
-console.log(selectedTemplate)
     const templates = [
         { id: 'classic', name: 'Classic', preview:" A clean and simple design" },
         { id: 'modern', name: 'Modern', preview:" A contemporary look with bold elements" },

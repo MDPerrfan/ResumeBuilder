@@ -6,6 +6,7 @@ import PersonalinfoForm from '../Components/PersonalinfoForm';
 import ResumePreview from '../Components/ResumePreview';
 import TemplateSelector from '../Components/TemplateSelector';
 import ColorPicker from '../Components/ColorPicker';
+import ProfessionalSummaryForm from '../Components/ProfessionalSummaryForm';
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
   const [resumeData, setResumeData] = React.useState({
@@ -34,6 +35,7 @@ export default function ResumeBuilder() {
 
   const sections = [
     { id: 'personal_info', title: 'Personal Info', icon: UserIcon },
+    { id: 'summary', titile: 'Professional Summary', icon: UserIcon },
     { id: 'experiences', title: 'Experience', icon: BriefcaseIcon },
     { id: 'education', title: 'Education', icon: GraduationCapIcon },
     { id: 'skills', title: 'Skills', icon: LightbulbIcon },
@@ -45,7 +47,6 @@ export default function ResumeBuilder() {
 
   React.useEffect(() => {
     fetchResumeData();
-    console.log(resumeData.template)
   }, [resumeId]);
 
   return (
@@ -72,7 +73,7 @@ export default function ResumeBuilder() {
               <div className='flex justify-between items-center mb-6 border-b border-gray-300 py-1'>
                 <div className='flex justify-between items-center py-1'>
                   <TemplateSelector selectedTemplate={resumeData.template} onChange={(template) => setResumeData(prev => ({ ...prev, template }))} />
-                    <ColorPicker onChange={(color) => setResumeData(prev => ({ ...prev, accent_color: color }))} accentColor={resumeData.accent_color} />
+                  <ColorPicker onChange={(color) => setResumeData(prev => ({ ...prev, accent_color: color }))} accentColor={resumeData.accent_color} />
                 </div>
 
                 <div className='flex items-center'>
@@ -97,6 +98,13 @@ export default function ResumeBuilder() {
                     </div>
                   )
                 }
+                {
+                  sections[activeSection].id === 'summary' && (
+                    <div>
+                      <ProfessionalSummaryForm data={resumeData.professional_summary} onChange={(data) => setResumeData(prev => ({ ...prev, professional_summary: data }))} setResumeData={setResumeData} />
+                    </div>
+                  )
+                }
               </div>
             </div>
           </div>
@@ -105,12 +113,12 @@ export default function ResumeBuilder() {
           {/*right side - resume preview*/}
           <div className='lg:col-span-7 max-lg:mt-6'>
 
-                <div>
-                  {/*buttons*/}
-                </div>
+            <div>
+              {/*buttons*/}
+            </div>
 
-                {/*Resume Preview*/}
-                <ResumePreview data={resumeData} template={resumeData.template} accentColor={resumeData.accent_color} classes={'mx-auto'} />
+            {/*Resume Preview*/}
+            <ResumePreview data={resumeData} template={resumeData.template} accentColor={resumeData.accent_color} classes={'mx-auto'} />
           </div>
 
         </div>
