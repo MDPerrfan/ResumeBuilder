@@ -1,16 +1,82 @@
-# React + Vite
+# ResumeBuilder Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, responsive resume builder focused on UI quality and smooth editing flow.
 
-Currently, two official plugins are available:
+## UI-First Highlights
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Clean and responsive layout across desktop and mobile breakpoints
+- Component-by-component architecture for maintainable UI development
+- Multi-step builder flow with section-based navigation
+- Real-time resume preview while editing form data
+- Template switching and accent color customization from the editor
+- Reusable sections for personal info, summary, and experience forms
 
-## React Compiler
+## Design Approach
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The interface is designed and built **component by component** to keep each part focused and reusable:
 
-## Expanding the ESLint configuration
+- Home/UI sections (`Hero`, `Features`, `Testimonials`, `Footer`)
+- Builder controls (`TemplateSelector`, `ColorPicker`, section navigation)
+- Form modules (`PersonalinfoForm`, `ProfessionalSummaryForm`, `ExperienceForm`)
+- Preview modules (`ResumePreview` with template variants)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (recommended)
+- npm
+
+### Install
+
+```bash
+npm install
+```
+
+### Run in development
+
+```bash
+npm run dev
+```
+
+### Build for production
+
+```bash
+npm run build
+```
+
+### Preview production build
+
+```bash
+npm run preview
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Main Screens
+
+- `/` - Landing page with responsive UI sections
+- `/login` - Authentication screen UI
+- `/app` - App dashboard layout
+- `/app/builder/:resumeId` - Guided resume builder UI
+- `/view/:resumeId` - Final resume preview page
+
+## Current Data
+
+The builder currently loads demo data from `src/assets/assets.js` (`dummyResumeData`).
+
+## Project Structure
+
+- `src/pages` - Page-level UI and route composition
+- `src/Components` - Reusable UI blocks and form components
+- `src/Components/templates` - Resume template UIs
+- `src/assets` - Static assets and demo content
+
+## Notes
+
+- Frontend-focused implementation in current stage
+- Core editing sections are active and connected to live preview
