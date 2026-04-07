@@ -5,7 +5,7 @@ import { ArrowLeftIcon, UserIcon, BriefcaseIcon, GraduationCapIcon, LightbulbIco
 import PersonalinfoForm from '../Components/PersonalinfoForm';
 import ResumePreview from '../Components/ResumePreview';
 import TemplateSelector from '../Components/TemplateSelector';
-
+import ColorPicker from '../Components/ColorPicker';
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
   const [resumeData, setResumeData] = React.useState({
@@ -72,6 +72,7 @@ export default function ResumeBuilder() {
               <div className='flex justify-between items-center mb-6 border-b border-gray-300 py-1'>
                 <div className='flex justify-between items-center py-1'>
                   <TemplateSelector selectedTemplate={resumeData.template} onChange={(template) => setResumeData(prev => ({ ...prev, template }))} />
+                    <ColorPicker onChange={(color) => setResumeData(prev => ({ ...prev, accent_color: color }))} accentColor={resumeData.accent_color} />
                 </div>
 
                 <div className='flex items-center'>
