@@ -7,7 +7,7 @@ import ResumePreview from '../Components/ResumePreview';
 import TemplateSelector from '../Components/TemplateSelector';
 import ColorPicker from '../Components/ColorPicker';
 import ProfessionalSummaryForm from '../Components/ProfessionalSummaryForm';
-import ExperienceForm from '../Components/ExperienceForm';
+import ExperienceForm from '../Components/ExperienceForm.tsx';
 import EducationForm from '../Components/EducationForm';
 import LanguageForm from '../Components/LanguageForm';
 import CustomSectionForm from '../Components/CustomSectionForm';

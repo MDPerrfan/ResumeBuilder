@@ -1,33 +1,52 @@
 import { Briefcase, Plus, Sparkles, Trash } from 'lucide-react'
 import React from 'react'
+type Experience = {
+  company: string;
+  position: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+  is_current: boolean;
+};
+type Props = {
+  data: Experience[];
+  onChange: (value: Experience[]) => void;
+};
+export default function ExperienceForm({ data, onChange }: Props) {
 
-export default function ExperienceForm({ data, onChange }) {
+  const addExperience = () => {
+    const newExperience: Experience = {
+      company: "",
+      position: "",
+      start_date: "",
+      end_date: "",
+      description: "",
+      is_current: false
+    };
 
-    const addExperience = () => {
+    onChange([...data, newExperience]);
+  };
 
-        const newExperience = {
-            company: "",
-            position: "",
-            start_date: "",
-            end_date: "",
-            description: "",
-            is_current: false
-        }
-        onChange([...data, newExperience])
+  const removeExperience = (index: number) => {
+    const updated = data.filter((_, i) => i !== index);
+    onChange(updated);
+  };
 
-    }
-    const removeExperience = (index) => {
-        const updated = data.filter((_, i) => i !== index);
-        onChange(updated)
-    }
+  const updateExperience = (
+    index: number,
+    field: keyof Experience,
+    value: string | boolean
+  ) => {
+    const updated = [...data];
 
-    const updateExperience = (index, field, value) => {
-        const updated = [...data];
+    updated[index] = {
+      ...updated[index],
+      [field]: value
+    };
 
-        updated[index] = { ...updated[index], [field]: value }
+    onChange(updated);
+  };
 
-        onChange(updated)
-    }
     return (
         <div className='space-y-4 '>
             <div className='flex items-center justify-between'>
