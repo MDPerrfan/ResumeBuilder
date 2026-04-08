@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin, Globe } from "lucide-react";
 import { FaLinkedin } from 'react-icons/fa';
+import React from "react";
 const ClassicTemplate = ({ data, accentColor }) => {
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
@@ -11,15 +12,19 @@ const ClassicTemplate = ({ data, accentColor }) => {
     };
     const sectionOrder = data.section_order || ['experience', 'education', 'project', 'skills', 'languages', 'custom_sections'];
 
-    const renderExperience = () => (
-        data.experience && data.experience.length > 0 && (
-            <section className="mb-6">
+    const renderExperience = () => {
+        // 1. Guard clause for cleaner code
+        if (!data.experience || data.experience.length === 0) return null;
+
+        return (
+            <section key="experience-section" className="mb-6">
                 <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>
                     PROFESSIONAL EXPERIENCE
                 </h2>
                 <div className="space-y-4">
                     {data.experience.map((exp, index) => (
-                        <div key={index} className="border-l-3 pl-4" style={{ borderColor: accentColor }}>
+                        // Using a unique ID is better than index if available (e.g., exp.id)
+                        <div key={exp.id || index} className="border-l-3 pl-4" style={{ borderColor: accentColor }}>
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h3 className="font-semibold text-gray-900">{exp.position}</h3>
@@ -29,13 +34,17 @@ const ClassicTemplate = ({ data, accentColor }) => {
                                     <p>{formatDate(exp.start_date)} - {exp.is_current ? "Present" : formatDate(exp.end_date)}</p>
                                 </div>
                             </div>
-                            {exp.description && <div className="text-gray-700 leading-relaxed whitespace-pre-line">{exp.description}</div>}
+                            {exp.description && (
+                                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                    {exp.description}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
             </section>
-        )
-    )
+        );
+    };
 
     const renderProjects = () => (
         data.project && data.project.length > 0 && (
@@ -43,16 +52,28 @@ const ClassicTemplate = ({ data, accentColor }) => {
                 <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>PROJECTS</h2>
                 <ul className="space-y-3">
                     {data.project.map((proj, index) => (
-                        <div key={index} className="flex justify-between items-start border-l-3 border-gray-300 pl-6">
+                        <li key={index} className="border-l-3 border-gray-300 pl-6">
                             <div>
-                                <li className="font-semibold text-gray-800 ">{proj.title || proj.name}</li>
+                                <p className="font-semibold text-gray-800">
+                                    {proj.title || proj.name}
+                                </p>
+
                                 <p className="text-gray-600">{proj.description}</p>
+
                                 <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                                    {proj.live_url && <a className="underline text-gray-700 break-all" href={proj.live_url} target="_blank" rel="noreferrer">Live URL</a>}
-                                    {proj.github_repo && <a className="underline text-gray-700 break-all" href={proj.github_repo} target="_blank" rel="noreferrer">GitHub Repo</a>}
+                                    {proj.live_url && (
+                                        <a href={proj.live_url} target="_blank" rel="noreferrer">
+                                            Live URL
+                                        </a>
+                                    )}
+                                    {proj.github_repo && (
+                                        <a href={proj.github_repo} target="_blank" rel="noreferrer">
+                                            GitHub Repo
+                                        </a>
+                                    )}
                                 </div>
                             </div>
-                        </div>
+                        </li>
                     ))}
                 </ul>
             </section>
@@ -150,7 +171,7 @@ const ClassicTemplate = ({ data, accentColor }) => {
                     )}
                     {data.personal_info?.linkedin && (
                         <div className="flex items-center gap-1">
-                            <FaLinkedin  className="size-4" />
+                            <FaLinkedin className="size-4" />
                             <span className="break-all">{data.personal_info.linkedin}</span>
                         </div>
                     )}
@@ -174,8 +195,14 @@ const ClassicTemplate = ({ data, accentColor }) => {
             )}
 
             {sectionOrder.map((sectionKey) => {
-                const renderer = sectionRenderers[sectionKey]
-                return renderer ? renderer() : null
+                const renderer = sectionRenderers[sectionKey];
+                if (!renderer) return null;
+
+                return (
+                    <React.Fragment key={sectionKey}>
+                        {renderer()}
+                    </React.Fragment>
+                );
             })}
         </div>
     );
