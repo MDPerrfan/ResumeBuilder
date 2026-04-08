@@ -26,7 +26,7 @@ export default function ResumePreview({ data, template, accentColor, classes }) 
                 {renderTemplate()}
             </div>
 
-            <style jsx>{`
+            <style>{`
         @page{
             size:letter;
             margin:0;
