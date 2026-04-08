@@ -1,8 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { UserButton, useUser } from '@clerk/react'
 
 export default function Hero() {
     const [mobileOpen, setMobileOpen] = React.useState(false)
+    const { user, isSignedIn } = useUser()
+    const displayName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User'
     const scrollToSection = (sectionId) => {
         const section = document.getElementById(sectionId)
         if (section) {
@@ -22,21 +25,23 @@ export default function Hero() {
                     }`
                 }
             </style>
-            <section className='flex flex-col items-center bg-linear-to-b from-[#D9D9FF] to-[#F8F3F9] px-4 py-4' >
-                <nav className="flex items-center justify-between gap-8 bg-white/60 border border-white rounded-full px-4 md:px-2 py-2.5 w-full max-w-3xl" >
+            <section className='flex flex-col items-center bg-linear-to-b from-[#D9D9FF] to-[#F8F3F9] px-4 py-4'>
+                <nav className="flex items-center justify-between gap-3 bg-white/70 border border-white rounded-full px-4 py-2.5 w-full max-w-4xl">
                     <a href="/" className='flex items-center md:pl-3'>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
                             <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM10.0001 16L16.0001 12L10.0001 8V16Z" fill="#4F39F6" ></path>
                         </svg>
                         <span className=" font-semibold">AiRESUME</span>
                     </a>
-                    <div className='w-0.5 h-8 bg-gray-50 hidden md:flex'></div>
-                    <div id="menu" className={`max-md:absolute max-md:bg-white/70 max-md:h-[785px] max-md:overflow-hidden max-md:transition-[width] max-md:duration-300 max-md:top-0 max-md:left-0 max-md:flex-col max-md:justify-center max-md:backdrop-blur flex items-center gap-8 z-50 md:gap-10 flex-1 ${mobileOpen ? 'max-md:w-full' : 'max-md:w-0'}`}>
+                    <div className='w-0.5 h-8 bg-gray-100 hidden md:flex'></div>
+                    <div id="menu" className={`max-md:absolute max-md:bg-white/95 max-md:h-screen max-md:overflow-hidden max-md:transition-[width] max-md:duration-300 max-md:top-0 max-md:left-0 max-md:flex-col max-md:justify-center max-md:backdrop-blur flex items-center md:justify-center gap-8 z-50 md:gap-8 flex-1 ${mobileOpen ? 'max-md:w-full' : 'max-md:w-0'}`}>
                         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Home</button>
                         <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Features</button>
                         <button onClick={() => scrollToSection('testimonials')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Testimonials</button>
                         <button onClick={() => scrollToSection('contact')} className="text-gray-600 hover:text-gray-700 text-sm cursor-pointer">Contact</button>
-                        <Link to="/login" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Login</Link>
+                        {!isSignedIn && (
+                            <Link to="/login" onClick={() => setMobileOpen(false)} className="text-gray-600 hover:text-gray-700 text-sm">Login</Link>
+                        )}
 
                         <button id="close-menu" onClick={() => setMobileOpen(false)} className="md:hidden bg-violet-500 active:bg-violet-600 text-white p-2 rounded-md aspect-square font-medium transition">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,10 +51,19 @@ export default function Hero() {
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2 md:pr-1">
-                        <button className="hidden md:inline-block bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm transition cursor-pointer">
-                            <Link to="/app?state=register" onClick={() => setMobileOpen(false)} className="">Get Started</Link>
-                        </button>
+                    <div className="flex items-center gap-2">
+                        {!isSignedIn ? (
+                            <button className="hidden md:inline-block bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm transition cursor-pointer">
+                                <Link to="/app?state=register" onClick={() => setMobileOpen(false)} className="">Get Started</Link>
+                            </button>
+                        ) : (
+                            <div className='hidden md:flex items-center gap-2'>
+                                <Link to="/app" className='bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-5 py-2 rounded-full text-xs md:text-sm transition'>
+                                    Dashboard
+                                </Link>
+                                <UserButton afterSignOutUrl="/login" />
+                            </div>
+                        )}
 
                         <button id="open-menu" onClick={() => setMobileOpen(true)} className="md:hidden text-gray-700 p-2 rounded-md aspect-square font-medium transition">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,11 +89,17 @@ export default function Hero() {
                 </p>
 
                 <div className='flex gap-3 mt-10'>
-                    <button className="bg-violet-600 hover:bg-violet-700 text-white text-xs md:text-sm px-6 py-3 rounded-lg transition cursor-pointer">
-                        <Link to="/app" onClick={() => setMobileOpen(false)} className="">
-                            Get Started Now
+                    {!isSignedIn ? (
+                        <button className="bg-violet-600 hover:bg-violet-700 text-white text-xs md:text-sm px-6 py-3 rounded-lg transition cursor-pointer">
+                            <Link to="/app" onClick={() => setMobileOpen(false)} className="">
+                                Get Started Now
+                            </Link>
+                        </button>
+                    ) : (
+                        <Link to="/app" className="bg-violet-600 hover:bg-violet-700 text-white text-xs md:text-sm px-6 py-3 rounded-lg transition cursor-pointer">
+                            Go to Dashboard
                         </Link>
-                    </button>
+                    )}
                     <button className="bg-white hover:bg-white/5 border border-violet-400 text-gray-600 text-xs md:text-sm px-5 py-3 rounded-lg transition cursor-pointer">
                         Book a demo
                     </button>

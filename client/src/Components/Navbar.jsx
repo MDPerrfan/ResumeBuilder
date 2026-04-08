@@ -1,13 +1,15 @@
-import React, { use } from 'react'
+import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useClerk, useUser } from '@clerk/react'
 
 export default function Navbar() {
-    const user = { name: 'Parves' }
     const navigate = useNavigate();
+    const { signOut } = useClerk();
+    const { user } = useUser();
+    const displayName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User';
 
-    const logoutUser = () => {
-        // Implement logout logic here
-        console.log('User logged out');
+    const logoutUser = async () => {
+        await signOut();
         navigate('/login');
     }
 
@@ -21,7 +23,7 @@ export default function Navbar() {
                     <span className="font-semibold">AiRESUME</span>       
                 </Link>
                 <div className='flex items-center justify-center'>
-                    <p className='max-sm:hidden'>Welcome, {user?.name}!</p>
+                    <p className='max-sm:hidden'>Welcome, {displayName}!</p>
                     <button onClick={()=>logoutUser()} className='mx-5 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-300 text-sm text-slate-700 hover:bg-slate-200 transition cursor-pointer'>Logout</button>
                 </div>
             </nav>

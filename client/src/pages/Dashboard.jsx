@@ -3,6 +3,7 @@ import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIco
 import { dummyResumeData } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
 import { parseResumePdf } from '../utils/parseResumePdf';
+import { useUser } from '@clerk/react';
 
 export default function Dashboard() {
 
@@ -15,7 +16,8 @@ export default function Dashboard() {
   const [uploadError, setUploadError] = React.useState('');
   const [isUploading, setIsUploading] = React.useState(false);
 
-  const user = { name: 'Parves' }
+  const { user } = useUser();
+  const displayName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User';
   const colors = ['#9333ea', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#14b8a6', '#eab308', '#4f46e5', '#16a34a'];
   const navigate = useNavigate()
 
@@ -102,7 +104,7 @@ const deleteResume = async (id) => {
     <div>
       <div className='max-w-7xl mx-auto px-4 py-8'>
         <p className='text-2xl font-medium mb-6 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent sm:hidden'>
-          Welcome, {user?.name}!
+          Welcome, {displayName}!
         </p>
 
         <div className='flex gap-4'>
