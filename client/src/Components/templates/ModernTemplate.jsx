@@ -63,158 +63,97 @@ const ModernTemplate = ({ data, accentColor }) => {
 						<p className="text-gray-700 ">{data.professional_summary}</p>
 					</section>
 				)}
-
-				{/* Experience */}
-				{data.experience && data.experience.length > 0 && (
-					<section className="mb-8">
-						<h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">
-							Experience
-						</h2>
-
-						<div className="space-y-6">
-							{data.experience.map((exp, index) => (
-								<div key={index} className="relative pl-6 border-l border-gray-200">
-
-									<div className="flex justify-between items-start mb-2">
-										<div>
-											<h3 className="text-xl font-medium text-gray-900">{exp.position}</h3>
-											<p className="font-medium" style={{ color: accentColor }}>{exp.company}</p>
+				{(data.section_order || ['experience', 'education', 'project', 'skills', 'languages', 'custom_sections']).map((sectionKey) => {
+					if (sectionKey === 'experience' && data.experience?.length) {
+						return (
+							<section className="mb-8" key={sectionKey}>
+								<h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">Experience</h2>
+								<div className="space-y-6">
+									{data.experience.map((exp, index) => (
+										<div key={index} className="relative pl-6 border-l border-gray-200">
+											<div className="flex justify-between items-start mb-2">
+												<div>
+													<h3 className="text-xl font-medium text-gray-900">{exp.position}</h3>
+													<p className="font-medium" style={{ color: accentColor }}>{exp.company}</p>
+												</div>
+												<div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded">{formatDate(exp.start_date)} - {exp.is_current ? "Present" : formatDate(exp.end_date)}</div>
+											</div>
+											{exp.description && <div className="text-gray-700 leading-relaxed mt-3 whitespace-pre-line">{exp.description}</div>}
 										</div>
-										<div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded">
-											{formatDate(exp.start_date)} - {exp.is_current ? "Present" : formatDate(exp.end_date)}
-										</div>
-									</div>
-									{exp.description && (
-										<div className="text-gray-700 leading-relaxed mt-3 whitespace-pre-line">
-											{exp.description}
-										</div>
-									)}
-								</div>
-							))}
-						</div>
-					</section>
-				)}
-
-				{/* Projects */}
-				{data.project && data.project.length > 0 && (
-					<section className="mb-8">
-						<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-							Projects
-						</h2>
-
-						<div className="space-y-6">
-							{data.project.map((p, index) => (
-								<div key={index} className="relative pl-6 border-l border-gray-200" style={{borderLeftColor: accentColor}}>
-
-
-									<div className="flex justify-between items-start">
-										<div>
-											<h3 className="text-lg font-medium text-gray-900">{p.title || p.name}</h3>
-										</div>
-									</div>
-									{p.description && (
-										<div className="text-gray-700 leading-relaxed text-sm mt-3">
-											{p.description}
-										</div>
-									)}
-									<div className="flex flex-wrap gap-4 mt-2 text-sm">
-										{p.live_url && (
-											<a className="underline text-gray-700 break-all" href={p.live_url} target="_blank" rel="noreferrer">
-												Live URL
-											</a>
-										)}
-										{p.github_repo && (
-											<a className="underline text-gray-700 break-all" href={p.github_repo} target="_blank" rel="noreferrer">
-												GitHub Repo
-											</a>
-										)}
-									</div>
-								</div>
-							))}
-						</div>
-					</section>
-				)}
-
-				<div className="grid sm:grid-cols-2 gap-8">
-					{/* Education */}
-					{data.education && data.education.length > 0 && (
-						<section>
-							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-								Education
-							</h2>
-
-							<div className="space-y-4">
-								{data.education.map((edu, index) => (
-									<div key={index}>
-										<h3 className="font-semibold text-gray-900">
-											{edu.degree} {edu.field && `in ${edu.field}`}
-										</h3>
-										<p style={{ color: accentColor }}>{edu.institution}</p>
-										<div className="flex justify-between items-center text-sm text-gray-600">
-											<span>{formatDate(edu.graduation_date)}</span>
-											{edu.gpa && <span>GPA: {edu.gpa}</span>}
-										</div>
-									</div>
-								))}
-							</div>
-						</section>
-					)}
-
-					{/* Skills */}
-					{data.skills && data.skills.length > 0 && (
-						<section>
-							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-								Skills
-							</h2>
-
-							<div className="flex flex-wrap gap-2">
-								{data.skills.map((skill, index) => (
-									<span
-										key={index}
-										className="px-3 py-1 text-sm text-white rounded-full"
-										style={{ backgroundColor: accentColor }}
-									>
-										{skill}
-									</span>
-								))}
-							</div>
-						</section>
-					)}
-
-					{/* Languages */}
-					{data.languages && data.languages.length > 0 && (
-						<section>
-							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-								Languages
-							</h2>
-							<div className="space-y-2 text-gray-700">
-								{data.languages.map((language, index) => (
-									<p key={index}>
-										{language.name}{language.proficiency ? ` - ${language.proficiency}` : ''}
-									</p>
-								))}
-							</div>
-						</section>
-					)}
-				</div>
-
-				{/* Custom Sections */}
-				{data.custom_sections && data.custom_sections.length > 0 && (
-					<div className="mt-8 space-y-8">
-						{data.custom_sections.map((section, sectionIndex) => (
-							<section key={sectionIndex}>
-								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-									{section.title || 'Other'}
-								</h2>
-								<ul className="space-y-2 text-gray-700 list-disc pl-6">
-									{(section.items || []).filter(Boolean).map((item, itemIndex) => (
-										<li key={itemIndex}>{item}</li>
 									))}
+								</div>
+							</section>
+						)
+					}
+					if (sectionKey === 'education' && data.education?.length) {
+						return (
+							<section className="mb-8" key={sectionKey}>
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Education</h2>
+								<div className="space-y-4">
+									{data.education.map((edu, index) => (
+										<div key={index}>
+											<h3 className="font-semibold text-gray-900">{edu.degree} {edu.field && `in ${edu.field}`}</h3>
+											<p style={{ color: accentColor }}>{edu.institution}</p>
+											<div className="flex justify-between items-center text-sm text-gray-600"><span>{formatDate(edu.graduation_date)}</span>{edu.gpa && <span>GPA: {edu.gpa}</span>}</div>
+										</div>
+									))}
+								</div>
+							</section>
+						)
+					}
+					if (sectionKey === 'project' && data.project?.length) {
+						return (
+							<section className="mb-8" key={sectionKey}>
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Projects</h2>
+								<div className="space-y-6">
+									{data.project.map((p, index) => (
+										<div key={index} className="relative pl-6 border-l border-gray-200" style={{ borderLeftColor: accentColor }}>
+											<h3 className="text-lg font-medium text-gray-900">{p.title || p.name}</h3>
+											{p.description && <div className="text-gray-700 leading-relaxed text-sm mt-3">{p.description}</div>}
+											<div className="flex flex-wrap gap-4 mt-2 text-sm">
+												{p.live_url && <a className="underline text-gray-700 break-all" href={p.live_url} target="_blank" rel="noreferrer">Live URL</a>}
+												{p.github_repo && <a className="underline text-gray-700 break-all" href={p.github_repo} target="_blank" rel="noreferrer">GitHub Repo</a>}
+											</div>
+										</div>
+									))}
+								</div>
+							</section>
+						)
+					}
+					if (sectionKey === 'skills' && data.skills?.length) {
+						return (
+							<section className="mb-8" key={sectionKey}>
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Skills</h2>
+								<div className="flex flex-wrap gap-2">
+									{data.skills.map((skill, index) => (
+										<span key={index} className="px-3 py-1 text-sm text-white rounded-full" style={{ backgroundColor: accentColor }}>{skill}</span>
+									))}
+								</div>
+							</section>
+						)
+					}
+					if (sectionKey === 'languages' && data.languages?.length) {
+						return (
+							<section className="mb-8" key={sectionKey}>
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Languages</h2>
+								<div className="space-y-2 text-gray-700">
+									{data.languages.map((language, index) => <p key={index}>{language.name}{language.proficiency ? ` - ${language.proficiency}` : ''}</p>)}
+								</div>
+							</section>
+						)
+					}
+					if (sectionKey === 'custom_sections' && data.custom_sections?.length) {
+						return data.custom_sections.map((section, sectionIndex) => (
+							<section key={`${sectionKey}-${sectionIndex}`} className="mb-8">
+								<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">{section.title || 'Other'}</h2>
+								<ul className="space-y-2 text-gray-700 list-disc pl-6">
+									{(section.items || []).filter(Boolean).map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}
 								</ul>
 							</section>
-						))}
-					</div>
-				)}
+						))
+					}
+					return null
+				})}
 			</div>
 		</div>
 	);
