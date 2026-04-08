@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { AuthenticateWithRedirectCallback } from '@clerk/react'
+import { AuthenticateWithRedirectCallback, } from '@clerk/react'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -17,7 +17,7 @@ export default function App() {
           <Route path='builder/:resumeId' element={<ResumeBuilder />} />
         </Route>
         <Route path='view/:resumeId' element={<Preview />} />
-        <Route path='/login' element={<Login />} />
+        <Route path='/login/*' element={<Login />} />
         <Route path='/login/sso-callback' element={<AuthenticateWithRedirectCallback />} />
         <Route path='/sso-callback' element={<AuthenticateWithRedirectCallback />} />
       </Routes>
