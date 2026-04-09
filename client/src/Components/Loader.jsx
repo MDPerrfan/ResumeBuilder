@@ -1,5 +1,4 @@
 import React from 'react'
-import { Loader, Placeholder } from 'rsuite';
 
 export default function Loading() {
     return (
