@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom';
 import { dummyResumeData } from '../assets/assets';
-import { ArrowLeftIcon, UserIcon, BriefcaseIcon, GraduationCapIcon, LightbulbIcon, FolderIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeftIcon, UserIcon, BriefcaseIcon, GraduationCapIcon, LightbulbIcon, FolderIcon, ChevronLeft, ChevronRight, Share2Icon } from 'lucide-react';
 import PersonalinfoForm from '../Components/PersonalinfoForm';
 import ResumePreview from '../Components/ResumePreview';
 import TemplateSelector from '../Components/TemplateSelector';
@@ -95,6 +95,7 @@ export default function ResumeBuilder() {
 
   React.useEffect(() => {
     fetchResumeData();
+    console.log(resumeData)
   }, [resumeId]);
 
   return (
@@ -213,8 +214,18 @@ export default function ResumeBuilder() {
           {/*right side - resume preview*/}
           <div className='lg:col-span-7 max-lg:mt-6'>
 
-            <div>
+            <div className='relative w-full'>
               {/*buttons*/}
+                <div className='absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2'>
+
+                  {
+                    resumeData.public &&(
+                      <button>
+                        <Share2Icon className='size-4'/>
+                      </button>
+                    )
+                  }
+                </div>
             </div>
 
             {/*Resume Preview*/}
