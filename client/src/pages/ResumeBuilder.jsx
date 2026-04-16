@@ -105,10 +105,6 @@ export default function ResumeBuilder() {
     fetchResumeData();
   }, [fetchResumeData]);
 
-  // FIX 3: Separate effect for debug logging so it doesn't interfere with fetch.
-  React.useEffect(() => {
-    console.log('resumeData updated:', resumeData);
-  }, [resumeData]);
 
   // --- Reorder helpers ---
   const activeReorderKey = REORDERABLE_SECTIONS_MAP[sections[activeSection].id];
@@ -130,16 +126,21 @@ export default function ResumeBuilder() {
     });
   };
 
-  // FIX 4: Share handler — copy public URL to clipboard
   const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/resume/${resumeData._id}`);
-      alert('Resume link copied to clipboard!');
-    } catch {
-      alert(`Share this link: ${window.location.origin}/resume/${resumeData._id}`);
+
+    const frontendUrl = window.location.href.split('/app')[0]
+    const resumeUrl = frontendUrl + '/view/' + resumeId
+
+    if(navigator.share){
+      navigator.share({url:resumeUrl, text:"My Resume."})
+    }else{
+      alert("This browser does not support sharing!")
     }
   };
 
+const changeVisibility =async()=>{
+  setResumeData({...resumeData, public: !resumeData.public})
+}
   // Generic field updater to keep JSX clean
   const updateField = (field) => (value) =>
     setResumeData((prev) => ({ ...prev, [field]: value }));
@@ -324,7 +325,7 @@ export default function ResumeBuilder() {
                   >
                     <Share2Icon className="size-4 text-gray-600" />
                   </button>
-                  <button className='flex items-center justify-center gap-2 px-3 py-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600'>
+                  <button className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
                     {
                       resumeData.public ? <EyeIcon className='size-4' /> : <EyeOffIcon className='size-4' />
                     }
