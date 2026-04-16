@@ -141,7 +141,11 @@ export default function ResumeBuilder() {
 const changeVisibility =async()=>{
   setResumeData({...resumeData, public: !resumeData.public})
 }
-  // Generic field updater to keep JSX clean
+
+const handleDownload=()=>{
+  window.print()
+}
+
   const updateField = (field) => (value) =>
     setResumeData((prev) => ({ ...prev, [field]: value }));
 
@@ -151,7 +155,6 @@ const changeVisibility =async()=>{
       personal_info: { ...prev.personal_info, [field]: value },
     }));
 
-  // FIX 5: Progress percentage capped correctly (0 → 100)
   const progressPct = sections.length > 1
     ? (activeSection / (sections.length - 1)) * 100
     : 0;
@@ -316,23 +319,28 @@ const changeVisibility =async()=>{
           <div className="lg:col-span-7 max-lg:mt-6">
             <div className="relative w-full">
               {/* FIX 8: Share button now has onClick handler + aria-label */}
-              {resumeData.public && (
+             
                 <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2 z-10">
-                  <button
+                {
+                  resumeData.public &&(
+                    <button
                     onClick={handleShare}
                     aria-label="Share resume"
                     className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
                   >
                     <Share2Icon className="size-4 text-gray-600" />
                   </button>
-                  <button className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
+                  )
+                }
+            
+                  <button onClick={changeVisibility} className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
                     {
                       resumeData.public ? <EyeIcon className='size-4' /> : <EyeOffIcon className='size-4' />
                     }
                     {resumeData.public ? "Public" : "Private"}
 
                   </button>
-                    <button
+                    <button onClick={handleDownload}
                     aria-label="Share resume"
                     className="flex items-center justify-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
                   >
@@ -340,7 +348,7 @@ const changeVisibility =async()=>{
                     Download
                   </button>
                 </div>
-              )}
+              
             </div>
 
             <ResumePreview
