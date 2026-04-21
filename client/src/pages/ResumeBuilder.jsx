@@ -230,7 +230,7 @@ const handleDownload=()=>{
                   {activeSection > 0 && (
                     <button
                       onClick={() => setActiveSection((prev) => prev - 1)}
-                      className="flex items-center gap-1 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
+                      className="flex items-center gap-1 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all px-2 py-0.5"
                     >
                       <ChevronLeft className="size-4" />
                       Previous
@@ -243,7 +243,7 @@ const handleDownload=()=>{
                     className={`${activeSection === sections.length - 1
                         ? 'cursor-not-allowed opacity-50'
                         : 'hover:bg-gray-50'
-                      } flex items-center gap-1 rounded-lg text-sm font-medium text-gray-600 transition-all ml-2`}
+                      } flex items-center gap-1 px-2 py-0.5 rounded-lg text-sm font-medium text-gray-600 transition-all ml-2`}
                   >
                     Next
                     <ChevronRight className="size-4" />
