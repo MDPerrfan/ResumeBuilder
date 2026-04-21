@@ -1,4 +1,4 @@
-import { Lightbulb, Plus, Trash } from 'lucide-react'
+import { CrossIcon, Lightbulb, Plus, Trash, XIcon } from 'lucide-react'
 import React from 'react'
 
 export default function SkillsForm({ data, onChange }) {
@@ -36,19 +36,27 @@ export default function SkillsForm({ data, onChange }) {
           <p className='text-sm text-gray-500'>Click "Add Skill" to get started</p>
         </div>
       ) : (
-        <div className='space-y-3'>
+        <div className='space-y-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2  gap-2'>
           {(data || []).map((skill, index) => (
-            <div key={index} className='flex gap-2'>
-              <input
-                value={skill || ''}
-                onChange={(e) => updateSkill(index, e.target.value)}
-                type='text'
-                placeholder='Skill name'
-                className='px-3 py-2 text-sm border border-gray-200 rounded-lg w-full'
-              />
-              <button onClick={() => removeSkill(index)} className='text-red-400 hover:text-red-600 transition-colors px-2'>
-                <Trash className='size-4' />
-              </button>
+            <div
+              key={index}
+              className="px-1 border border-gray-200 rounded-full mx-2 bg-gray-200"
+            >
+              <div className="flex gap-2 items-center">
+                <input
+                  value={skill || ''}
+                  onChange={(e) => updateSkill(index, e.target.value)}
+                  type="text"
+                  placeholder="Skill name"
+                  className="px-3 py-2 text-sm w-full bg-transparent outline-none"
+                />
+                <button
+                  onClick={() => removeSkill(index)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XIcon className="size-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
