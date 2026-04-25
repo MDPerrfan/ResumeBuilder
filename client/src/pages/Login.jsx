@@ -1,5 +1,5 @@
 import React from "react";
-import { SignIn } from "@clerk/react";
+import { SignIn } from "@clerk/clerk-react";
 
 // Clerk-hosted authentication replaces the manual form.
 // Ensure the app is wrapped with <ClerkProvider publishableKey=...>
@@ -12,7 +12,7 @@ const Login = () => {
         path="/login"
         routing="path"
         signUpUrl="/login"
-        afterSignInUrl="/"
+        fallbackRedirectUrl="/"
         appearance={{
           elements: {
             formButtonPrimary:

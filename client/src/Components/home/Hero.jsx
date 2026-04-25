@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { UserButton, useUser } from '@clerk/react'
+import { UserButton, useUser } from '@clerk/clerk-react'
 
 export default function Hero() {
     const [mobileOpen, setMobileOpen] = React.useState(false)

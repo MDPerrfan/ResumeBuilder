@@ -41,7 +41,7 @@ const resolveResumeUserId = (req, res, next) => {
   }
 };
 
-const protected = (req, res, next) => {
+const requireAuth = (req, res, next) => {
   try {
     const clerkUserId = getClerkUserId(req);
     if (!clerkUserId) {
@@ -74,4 +74,4 @@ const requireAiAuth = (req, res, next) => {
   return next();
 };
 
-module.exports = { resolveResumeUserId, protected, requireAiAuth, getClerkUserId };
+module.exports = { resolveResumeUserId, requireAuth, requireAiAuth, getClerkUserId };

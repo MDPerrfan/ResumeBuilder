@@ -1,10 +1,10 @@
 const express = require("express");
-const { protected } = require("../middleware/authMiddleware");
+const { requireAuth } = require("../middleware/authMiddleware");
 const { syncUser, getCurrentUser } = require("../controllers/userController");
 
 const router = express.Router();
 
-router.use(protected);
+router.use(requireAuth);
 
 router.post("/sync", syncUser);
 router.get("/me", getCurrentUser);

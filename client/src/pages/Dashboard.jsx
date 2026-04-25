@@ -2,7 +2,7 @@ import React from 'react'
 import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import { parseResumePdf } from '../utils/parseResumePdf';
-import { useAuth, useUser } from '@clerk/react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { resumeApi, userApi } from '../utils/apiClient';
 import { clearGuestResumes, getGuestId, getGuestResumes, removeGuestResume, upsertGuestResume } from '../utils/resumeStorage';
 import InlineNotice from '../Components/InlineNotice';

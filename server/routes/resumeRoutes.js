@@ -1,5 +1,5 @@
 const express = require("express");
-const { resolveResumeUserId, protected } = require("../middleware/authMiddleware");
+const { resolveResumeUserId, requireAuth } = require("../middleware/authMiddleware");
 const {
   getAllResumes,
   getResumeById,
@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.get("/public/:id", getPublicResumeById);
 router.post("/upload-image", resolveResumeUserId, uploadResumeImage);
-router.post("/migrate-guest", protected, migrateGuestResumes);
+router.post("/migrate-guest", requireAuth, migrateGuestResumes);
 router.use(resolveResumeUserId);
 
 router.get("/", getAllResumes);

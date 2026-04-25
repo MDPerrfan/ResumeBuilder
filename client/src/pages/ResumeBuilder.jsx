@@ -18,7 +18,7 @@ import LanguageForm from '../Components/LanguageForm';
 import CustomSectionForm from '../Components/CustomSectionForm';
 import ProjectForm from '../Components/ProjectForm';
 import SkillsForm from '../Components/SkillsForm';
-import { useAuth, useUser } from '@clerk/react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { aiApi, resumeApi } from '../utils/apiClient';
 import { getGuestResumes, upsertGuestResume } from '../utils/resumeStorage';
 import InlineNotice from '../Components/InlineNotice';
