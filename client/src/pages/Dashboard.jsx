@@ -22,7 +22,7 @@ export default function Dashboard() {
   const [notice, setNotice] = React.useState({ type: '', message: '' });
   const [isLoading, setIsLoading] = React.useState(true);
 
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const { getToken } = useAuth();
   const displayName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User';
   const colors = ['#9333ea', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#14b8a6', '#eab308', '#4f46e5', '#16a34a'];
@@ -50,6 +50,7 @@ export default function Dashboard() {
   });
 
   const fetchAllResume = async () => {
+    setIsLoading(true)
     try {
       if (isSignedIn) {
         const token = await getToken();
@@ -236,6 +237,7 @@ export default function Dashboard() {
     }
   }
   React.useEffect(() => {
+    if(!isLoaded) return;
     fetchAllResume();
   }, [isSignedIn]);
 
