@@ -1,7 +1,7 @@
 import {  Sparkles } from 'lucide-react'
 import React from 'react'
 
-export default function ProfessionalSummaryForm({data, onChange, setResumeData}) {
+export default function ProfessionalSummaryForm({data, onChange, onEnhanceSummary, isEnhancing}) {
   return (
     <div className='space-y-4 '>
         <div className='flex items-center justify-between'>
@@ -12,9 +12,9 @@ export default function ProfessionalSummaryForm({data, onChange, setResumeData})
 
             </div>
 
-            <button className='flex items-center justify-center gap-2 py-2 px-3 bg-purple-50 text-purple-500 text-sm rounded-md'>
+            <button onClick={onEnhanceSummary} className='flex items-center justify-center gap-2 py-2 px-3 bg-purple-50 text-purple-500 text-sm rounded-md'>
                 <Sparkles className='size-4'/>
-                AI Inhance
+                {isEnhancing ? 'Enhancing...' : 'AI Inhance'}
             </button>
 
         </div>

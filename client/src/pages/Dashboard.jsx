@@ -1,9 +1,11 @@
 import React from 'react'
 import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
-import { dummyResumeData } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
 import { parseResumePdf } from '../utils/parseResumePdf';
-import { useUser } from '@clerk/react';
+import { useAuth, useUser } from '@clerk/react';
+import { resumeApi, userApi } from '../utils/apiClient';
+import { clearGuestResumes, getGuestId, getGuestResumes, removeGuestResume, upsertGuestResume } from '../utils/resumeStorage';
+import InlineNotice from '../Components/InlineNotice';
 
 export default function Dashboard() {
 
@@ -15,32 +17,126 @@ export default function Dashboard() {
   const [editResumeId, setEditResumeId] = React.useState(null);
   const [uploadError, setUploadError] = React.useState('');
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [notice, setNotice] = React.useState({ type: '', message: '' });
 
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const displayName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User';
   const colors = ['#9333ea', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#14b8a6', '#eab308', '#4f46e5', '#16a34a'];
   const navigate = useNavigate()
 
+  const notify = (message, type = 'success') => {
+    setNotice({ message, type });
+  };
+
+  const calcCompletion = (resume) => {
+    const checks = [
+      Boolean(resume?.title),
+      Boolean(resume?.personal_info?.full_name),
+      Boolean(resume?.professional_summary),
+      (resume?.experience || []).length > 0,
+      (resume?.education || []).length > 0,
+      (resume?.skills || []).length > 0,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  };
+
+  const normalizeResume = (resume) => ({
+    ...resume,
+    completion: calcCompletion(resume),
+  });
+
   const fetchAllResume = async () => {
     try {
-
-      setAllresume(dummyResumeData);
-
+      if (isSignedIn) {
+        const token = await getToken();
+        const result = await resumeApi.list(token);
+        setAllresume((result.data || []).map(normalizeResume));
+        return;
+      }
+      setAllresume(getGuestResumes().map(normalizeResume));
     } catch (error) {
-      console.error('Error fetching resumes:', error);
+      notify(error.message || 'Failed to fetch resumes', 'error');
     }
   };
 
-  const createResume = async (e) => {
-    e.preventDefault();
+  const migrateGuestResumesIfNeeded = React.useCallback(async () => {
+    if (!isSignedIn) return;
+    const guestResumes = getGuestResumes();
+    if (!guestResumes.length) return;
+
     try {
-      // Implement API call to create resume here
-      setShowCreateModal(false);
-      navigate(`/app/builder/title=${'resume._id'}`);
-      // After successful creation, fetch the updated list of resumes
+      const token = await getToken();
+      await userApi.sync(
+        {
+          email: user?.primaryEmailAddress?.emailAddress || "",
+          name: user?.fullName || user?.firstName || "User",
+          imageUrl: user?.imageUrl || "",
+        },
+        token
+      );
+
+      for (const guestResume of guestResumes) {
+        const { _id, userId, completion, createdAt, updatedAt, ...payload } = guestResume;
+        await resumeApi.create(payload, token);
+      }
+
+      await resumeApi.migrateGuest(getGuestId(), token);
+      clearGuestResumes();
+      notify('Guest resumes moved to your account');
       fetchAllResume();
     } catch (error) {
-      console.error('Error creating resume:', error);
+      notify(error.message || 'Failed to migrate guest resumes', 'error');
+    }
+  }, [getToken, isSignedIn, user]);
+
+  const createResume = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const payload = {
+        title,
+        personal_info: {},
+        professional_summary: '',
+        experience: [],
+        education: [],
+        languages: [],
+        custom_sections: [],
+        skills: [],
+        project: [],
+        template: 'classic',
+        accent_color: '#4F39F6',
+        public: false,
+      };
+
+      if (isSignedIn) {
+        const token = await getToken();
+        const response = await resumeApi.create(payload, token);
+        const resumeId = response.data?._id;
+        setShowCreateModal(false);
+        setTitle('');
+        fetchAllResume();
+        navigate(`/app/builder/${resumeId}`);
+        return;
+      }
+
+      const guestResume = {
+        ...payload,
+        _id: `guest-${Date.now()}`,
+        userId: getGuestId(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      upsertGuestResume(guestResume);
+      setShowCreateModal(false);
+      setTitle('');
+      fetchAllResume();
+      navigate(`/app/builder/${guestResume._id}`);
+    } catch (error) {
+      notify(error.message || 'Failed to create resume', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -59,7 +155,8 @@ export default function Dashboard() {
       const generatedId = `upload-${Date.now()}`;
 
       const mappedResume = {
-        _id: generatedId,
+        _id: isSignedIn ? undefined : generatedId,
+        userId: isSignedIn ? undefined : getGuestId(),
         title: title.trim() || extractedData.title || 'Uploaded Resume',
         personal_info: extractedData.personal_info || {},
         professional_summary: extractedData.professional_summary || '',
@@ -69,16 +166,28 @@ export default function Dashboard() {
         template: 'classic',
         accent_color: '#4F39F6',
         public: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
-      sessionStorage.setItem(`uploaded-resume-${generatedId}`, JSON.stringify(mappedResume));
-      setShowUploadModal(false);
-      setResumeFile(null);
-      setTitle('');
-      navigate(`/app/builder/${generatedId}`);
-      fetchAllResume();
+      if (isSignedIn) {
+        const token = await getToken();
+        const response = await resumeApi.create(mappedResume, token);
+        const createdId = response.data?._id;
+        setShowUploadModal(false);
+        setResumeFile(null);
+        setTitle('');
+        fetchAllResume();
+        navigate(`/app/builder/${createdId}`);
+      } else {
+        upsertGuestResume(mappedResume);
+        setShowUploadModal(false);
+        setResumeFile(null);
+        setTitle('');
+        fetchAllResume();
+        navigate(`/app/builder/${generatedId}`);
+      }
     } catch (error) {
-      console.error('Error uploading resume:', error);
       setUploadError('Could not extract resume data from this PDF. Try another file format or clearer PDF.');
     } finally {
       setIsUploading(false);
@@ -87,21 +196,53 @@ export default function Dashboard() {
 
 const editTitle = async (e) => {
   e.preventDefault();
+  try {
+    if (!editResumeId) return;
+    if (isSignedIn) {
+      const token = await getToken();
+      await resumeApi.update(editResumeId, { title }, token);
+    } else {
+      const guestResume = (allresume || []).find((item) => item._id === editResumeId);
+      if (guestResume) {
+        upsertGuestResume({ ...guestResume, title, updatedAt: new Date().toISOString() });
+      }
+    }
+    setEditResumeId(null);
+    setTitle('');
+    fetchAllResume();
+  } catch (error) {
+    notify(error.message || 'Failed to update title', 'error');
+  }
 }
 
 const deleteResume = async (id) => {
   const confirmDelete = window.confirm('Are you sure you want to delete this resume?');
   if (confirmDelete){
-    setAllresume(prev => prev.filter(resume => resume._id !== id));
+    try {
+      if (isSignedIn) {
+        const token = await getToken();
+        await resumeApi.remove(id, token);
+      } else {
+        removeGuestResume(id);
+      }
+      fetchAllResume();
+    } catch (error) {
+      notify(error.message || 'Failed to delete resume', 'error');
+    }
   }
 }
   React.useEffect(() => {
     fetchAllResume();
-  }, []);
+  }, [isSignedIn]);
+
+  React.useEffect(() => {
+    migrateGuestResumesIfNeeded();
+  }, [migrateGuestResumesIfNeeded]);
 
 
   return (
     <div>
+      <InlineNotice notice={notice} onClose={() => setNotice({ type: '', message: '' })} />
       <div className='max-w-7xl mx-auto px-4 py-8'>
         <p className='text-2xl font-medium mb-6 bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent sm:hidden'>
           Welcome, {displayName}!
@@ -140,6 +281,9 @@ const deleteResume = async (id) => {
                 <p className='text-[11px] text-slate-400 absolute bottom-2  group-hover:text-slate-500 transition-all duration-300 text-center' style={{ color: baseColor + '90' }}>
                   Updated on {new Date(resume.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
+                <p className='absolute bottom-7 text-[10px] font-medium' style={{ color: baseColor + 'AA' }}>
+                  {resume.completion || 0}% complete
+                </p>
                 <div onClick={e=>e.stopPropagation()} className='absolute top-1 right-1 group-hover:flex items-center hidden'>
                   <TrashIcon onClick={() => deleteResume(resume._id)} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
                   <PencilIcon onClick={()=>{setEditResumeId(resume._id); setTitle(resume.title)}} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
@@ -163,7 +307,7 @@ const deleteResume = async (id) => {
                   placeholder="Resume Title"
                   className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600"
                 />
-                <button className='cursor-pointer w-full py-2 bg-green-600 text-white rounded hover:bg-green-700  transition-colors '>Create</button>
+                <button disabled={isSaving} className='cursor-pointer w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60 transition-colors '>{isSaving ? 'Creating...' : 'Create'}</button>
                 <XIcon className='absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer' onClick={() => { setShowCreateModal(false); setTitle('') }} />
               </div>
             </form>

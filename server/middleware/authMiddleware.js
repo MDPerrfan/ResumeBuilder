@@ -1,11 +1,77 @@
-const { requireAuth, getAuth } = require("@clerk/express");
+const getClerkUserId = (req) => req.auth?.userId || req.auth?.id || null;
 
-const clerkRequireAuth = requireAuth();
+const getGuestId = (req) => {
+  const bodyGuestId = req.body?.guestId;
+  if (typeof bodyGuestId === "string" && bodyGuestId.trim()) {
+    return bodyGuestId.trim();
+  }
 
-const attachUserId = (req, res, next) => {
-  const auth = getAuth(req);
-  req.userId = auth?.userId || null;
-  next();
+  const headerGuestId = req.headers["x-guest-id"] || req.headers["x-temp-user-id"];
+  if (typeof headerGuestId === "string" && headerGuestId.trim()) {
+    return headerGuestId.trim();
+  }
+
+  return null;
 };
 
-module.exports = { clerkRequireAuth, attachUserId };
+const resolveResumeUserId = (req, res, next) => {
+  try {
+    const clerkUserId = getClerkUserId(req);
+    if (clerkUserId) {
+      req.userId = clerkUserId;
+      return next();
+    }
+
+    const guestId = getGuestId(req);
+    if (guestId) {
+      req.userId = guestId;
+      return next();
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "guestId is required when not signed in",
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+      error: error.message,
+    });
+  }
+};
+
+const protected = (req, res, next) => {
+  try {
+    const clerkUserId = getClerkUserId(req);
+    if (!clerkUserId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    req.userId = clerkUserId;
+    return next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+      error: error.message,
+    });
+  }
+};
+
+const requireAiAuth = (req, res, next) => {
+  const clerkUserId = getClerkUserId(req);
+  if (!clerkUserId) {
+    return res.status(401).json({
+      success: false,
+      message: "Sign in to use AI features",
+    });
+  }
+
+  req.userId = clerkUserId;
+  return next();
+};
+
+module.exports = { resolveResumeUserId, protected, requireAiAuth, getClerkUserId };

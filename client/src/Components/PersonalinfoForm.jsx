@@ -1,8 +1,9 @@
 import { BriefcaseBusinessIcon, DeleteIcon, FolderGitIcon, GlobeIcon, Link2, MailboxIcon, MapPin, Phone, Trash2Icon, UserIcon, User2Icon } from 'lucide-react'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
-export default function PersonalinfoForm({ data, onChange, removeBg, setRemoveBg }) {
+export default function PersonalinfoForm({ data, onChange, removeBg, setRemoveBg, onImageUpload, onError }) {
     const fileInputRef = useRef(null);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     const handleChange = (field, value) => {
         onChange(field, value);
@@ -11,6 +12,27 @@ export default function PersonalinfoForm({ data, onChange, removeBg, setRemoveBg
     const handleRemoveImage = () => {
         handleChange('image', null);
         if (fileInputRef.current) fileInputRef.current.value = null; // reset file input
+    };
+
+    const handleImageChange = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!onImageUpload) {
+            handleChange('image', file);
+            return;
+        }
+
+        try {
+            setIsUploadingImage(true);
+            const imageUrl = await onImageUpload(file);
+            handleChange('image', imageUrl);
+        } catch (error) {
+            onError?.(error.message || 'Failed to upload image');
+            if (fileInputRef.current) fileInputRef.current.value = null;
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
 
     const fields = [
@@ -56,7 +78,7 @@ export default function PersonalinfoForm({ data, onChange, removeBg, setRemoveBg
                             type="file"
                             accept='image/*'
                             className='hidden'
-                            onChange={(e) => handleChange('image', e.target.files[0])}
+                            onChange={handleImageChange}
                         />
                     </label>
                 </div>
@@ -91,6 +113,9 @@ export default function PersonalinfoForm({ data, onChange, removeBg, setRemoveBg
                                 <span className="text-sm text-gray-600">Remove Background</span>
 
                             </label>
+                            {isUploadingImage && (
+                                <p className='text-xs text-gray-500'>Uploading image...</p>
+                            )}
 
                         </div>
                     )}

@@ -1,16 +1,22 @@
 const express = require("express");
-const { clerkRequireAuth, attachUserId } = require("../middleware/authMiddleware");
+const { resolveResumeUserId, protected } = require("../middleware/authMiddleware");
 const {
   getAllResumes,
   getResumeById,
+  getPublicResumeById,
   createResume,
   updateResume,
   deleteResume,
+  uploadResumeImage,
+  migrateGuestResumes,
 } = require("../controllers/resumeController");
 
 const router = express.Router();
 
-router.use(clerkRequireAuth, attachUserId);
+router.get("/public/:id", getPublicResumeById);
+router.post("/upload-image", resolveResumeUserId, uploadResumeImage);
+router.post("/migrate-guest", protected, migrateGuestResumes);
+router.use(resolveResumeUserId);
 
 router.get("/", getAllResumes);
 router.get("/:id", getResumeById);

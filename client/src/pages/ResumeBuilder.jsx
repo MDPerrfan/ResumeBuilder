@@ -1,6 +1,5 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom';
-import { dummyResumeData } from '../assets/assets';
 import {
   ArrowLeftIcon, UserIcon, BriefcaseIcon, GraduationCapIcon,
   LightbulbIcon, FolderIcon, ChevronLeft, ChevronRight, Share2Icon,
@@ -19,6 +18,11 @@ import LanguageForm from '../Components/LanguageForm';
 import CustomSectionForm from '../Components/CustomSectionForm';
 import ProjectForm from '../Components/ProjectForm';
 import SkillsForm from '../Components/SkillsForm';
+import { useAuth, useUser } from '@clerk/react';
+import { aiApi, resumeApi } from '../utils/apiClient';
+import { getGuestResumes, upsertGuestResume } from '../utils/resumeStorage';
+import InlineNotice from '../Components/InlineNotice';
+import AIGateModal from '../Components/AIGateModal';
 
 const DEFAULT_CV_SECTION_ORDER = ['experience', 'education', 'project', 'skills', 'languages', 'custom_sections'];
 
@@ -62,48 +66,146 @@ const REORDERABLE_SECTIONS_MAP = {
 
 export default function ResumeBuilder() {
   const { resumeId } = useParams();
+  const { getToken } = useAuth();
+  const { isSignedIn } = useUser();
 
   const [resumeData, setResumeData] = React.useState(INITIAL_RESUME_DATA);
   const [activeSection, setActiveSection] = React.useState(0);
   const [removeBg, setRemoveBg] = React.useState(false);
+  const [isEnhancingSummary, setIsEnhancingSummary] = React.useState(false);
+  const [enhancingExperienceIndex, setEnhancingExperienceIndex] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [saveStatus, setSaveStatus] = React.useState("Saved");
+  const [notice, setNotice] = React.useState({ type: "", message: "" });
+  const [showAiGate, setShowAiGate] = React.useState(false);
+  const hasLoadedRef = React.useRef(false);
 
-  // FIX 1: fetchResumeData wrapped in useCallback so it's stable and can safely
-  //         be listed in the useEffect dependency array without causing loops.
-  const fetchResumeData = React.useCallback(() => {
-    // Try dummy data first
-    const resume = dummyResumeData.find(r => r._id === resumeId);
-    if (resume) {
-      setResumeData({
-        ...INITIAL_RESUME_DATA,
-        ...resume,
-        section_order: resume.section_order || DEFAULT_CV_SECTION_ORDER,
-      });
-      document.title = `${resume.title} - Resume Builder`;
-      return;
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error("Failed to read image file"));
+      reader.readAsDataURL(file);
+    });
+
+  const handleImageUpload = async (file) => {
+    const image = await fileToBase64(file);
+    const token = isSignedIn ? await getToken() : null;
+    const result = await resumeApi.uploadImage(image, token);
+    return result.data?.url;
+  };
+
+  const nudgeSignInForAi = () => {
+    setShowAiGate(true);
+  };
+
+  const notify = (message, type = "success") => {
+    setNotice({ message, type });
+  };
+
+  const handleEnhanceSummary = async (event) => {
+    event.preventDefault();
+    if (!isSignedIn) return nudgeSignInForAi();
+    if (!resumeData.professional_summary?.trim()) return;
+
+    try {
+      setIsEnhancingSummary(true);
+      const token = await getToken();
+      const result = await aiApi.enhanceSummary(resumeData.professional_summary, token);
+      updateField("professional_summary")(result.data?.text || resumeData.professional_summary);
+    } catch (error) {
+      notify(error.message || "Failed to enhance summary", "error");
+    } finally {
+      setIsEnhancingSummary(false);
     }
+  };
 
-    // Fall back to session storage
-    const uploadedRaw = sessionStorage.getItem(`uploaded-resume-${resumeId}`);
-    if (uploadedRaw) {
-      try {
-        const uploadedResume = JSON.parse(uploadedRaw);
+  const handleEnhanceExperience = async (index, description) => {
+    if (!isSignedIn) return nudgeSignInForAi();
+    if (!description?.trim()) return;
+
+    try {
+      setEnhancingExperienceIndex(index);
+      const token = await getToken();
+      const result = await aiApi.enhanceExperience(description, token);
+      setResumeData((prev) => {
+        const updatedExperience = [...(prev.experience || [])];
+        if (!updatedExperience[index]) return prev;
+        updatedExperience[index] = {
+          ...updatedExperience[index],
+          description: result.data?.text || description,
+        };
+        return { ...prev, experience: updatedExperience };
+      });
+    } catch (error) {
+      notify(error.message || "Failed to enhance experience", "error");
+    } finally {
+      setEnhancingExperienceIndex(null);
+    }
+  };
+
+  const fetchResumeData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (isSignedIn) {
+        const token = await getToken();
+        const response = await resumeApi.get(resumeId, token);
+        const resume = response.data;
         setResumeData({
           ...INITIAL_RESUME_DATA,
-          ...uploadedResume,
-          section_order: uploadedResume.section_order || DEFAULT_CV_SECTION_ORDER,
+          ...resume,
+          section_order: resume.section_order || DEFAULT_CV_SECTION_ORDER,
         });
-        document.title = `${uploadedResume.title || 'Resume'} - Resume Builder`;
-      } catch (e) {
-        console.error('Failed to parse uploaded resume from session storage:', e);
+        document.title = `${resume.title} - Resume Builder`;
+        hasLoadedRef.current = true;
+        return;
       }
-    }
-  }, [resumeId]);
 
-  // FIX 2: Effect depends only on fetchResumeData (stable ref), not on resumeData
-  //         (which would cause an infinite loop).
+      const guestResume = getGuestResumes().find((item) => item._id === resumeId);
+      if (!guestResume) {
+        notify("Resume not found", "error");
+        return;
+      }
+
+      setResumeData({
+        ...INITIAL_RESUME_DATA,
+        ...guestResume,
+        section_order: guestResume.section_order || DEFAULT_CV_SECTION_ORDER,
+      });
+      document.title = `${guestResume.title || "Resume"} - Resume Builder`;
+      hasLoadedRef.current = true;
+    } catch (error) {
+      notify(error.message || "Failed to load resume", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getToken, isSignedIn, resumeId]);
+
   React.useEffect(() => {
     fetchResumeData();
   }, [fetchResumeData]);
+
+  React.useEffect(() => {
+    if (!hasLoadedRef.current || !resumeData._id) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        setSaveStatus("Saving...");
+        if (isSignedIn) {
+          const token = await getToken();
+          await resumeApi.update(resumeData._id, resumeData, token);
+        } else {
+          upsertGuestResume({ ...resumeData, updatedAt: new Date().toISOString() });
+        }
+        setSaveStatus("Saved");
+      } catch (error) {
+        setSaveStatus("Save failed");
+        notify(error.message || "Failed to save resume", "error");
+      }
+    }, 700);
+
+    return () => clearTimeout(timeout);
+  }, [getToken, isSignedIn, resumeData]);
 
 
   // --- Reorder helpers ---
@@ -127,24 +229,24 @@ export default function ResumeBuilder() {
   };
 
   const handleShare = async () => {
+    const frontendUrl = window.location.href.split('/app')[0];
+    const shareResumeId = resumeData?._id || resumeId;
+    const resumeUrl = `${frontendUrl}/view/${shareResumeId}`;
 
-    const frontendUrl = window.location.href.split('/app')[0]
-    const resumeUrl = frontendUrl + '/view/' + resumeId
-
-    if(navigator.share){
-      navigator.share({url:resumeUrl, text:"My Resume."})
-    }else{
-      alert("This browser does not support sharing!")
+    if (navigator.share) {
+      navigator.share({ url: resumeUrl, text: "My Resume." });
+    } else {
+      notify("This browser does not support sharing", "error");
     }
   };
 
-const changeVisibility =async()=>{
-  setResumeData({...resumeData, public: !resumeData.public})
-}
+  const changeVisibility = async () => {
+    setResumeData({ ...resumeData, public: !resumeData.public });
+  };
 
-const handleDownload=()=>{
-  window.print()
-}
+  const handleDownload = () => {
+    window.print();
+  };
 
   const updateField = (field) => (value) =>
     setResumeData((prev) => ({ ...prev, [field]: value }));
@@ -161,6 +263,8 @@ const handleDownload=()=>{
 
   return (
     <div>
+      <InlineNotice notice={notice} onClose={() => setNotice({ type: "", message: "" })} />
+      <AIGateModal open={showAiGate} onClose={() => setShowAiGate(false)} />
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Link
           to="/app"
@@ -172,6 +276,7 @@ const handleDownload=()=>{
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pb-8">
+        <div className="mb-4 text-xs text-slate-500">{isLoading ? "Loading resume..." : saveStatus}</div>
         <div className="grid lg:grid-cols-12 gap-8">
 
           {/* Left side — form */}
@@ -259,6 +364,8 @@ const handleDownload=()=>{
                     onChange={updatePersonalInfo}
                     removeBg={removeBg}
                     setRemoveBg={setRemoveBg}
+                    onImageUpload={handleImageUpload}
+                    onError={(message) => notify(message, "error")}
                   />
                 )}
 
@@ -266,7 +373,8 @@ const handleDownload=()=>{
                   <ProfessionalSummaryForm
                     data={resumeData.professional_summary}
                     onChange={updateField('professional_summary')}
-                    setResumeData={setResumeData}
+                    onEnhanceSummary={handleEnhanceSummary}
+                    isEnhancing={isEnhancingSummary}
                   />
                 )}
 
@@ -274,6 +382,8 @@ const handleDownload=()=>{
                   <ExperienceForm
                     data={resumeData.experience}
                     onChange={updateField('experience')}
+                    onEnhanceExperience={handleEnhanceExperience}
+                    enhancingIndex={enhancingExperienceIndex}
                   />
                 )}
 

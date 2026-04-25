@@ -1,16 +1,13 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt"
-const UserSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
 
-    name:{type:String, required:true},
-    email:{type:String, required:true, unique:true},
-    password:{type:String, required: true}
-},{timestamps:true})
+const userSchema = new mongoose.Schema(
+  {
+    clerkId: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    imageUrl: { type: String, default: "" },
+  },
+  { timestamps: true }
+);
 
-UserSchema.methods.comparePassword = function (password){
-    return bcrypt.comapreSync(password, this.password)
-}
-
-const User = mongoose.model("User",UserSchema)
-
-export default User
+module.exports = mongoose.model("User", userSchema);

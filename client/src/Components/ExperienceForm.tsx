@@ -11,8 +11,10 @@ type Experience = {
 type Props = {
   data: Experience[];
   onChange: (value: Experience[]) => void;
+  onEnhanceExperience?: (index: number, description: string) => void;
+  enhancingIndex?: number | null;
 };
-export default function ExperienceForm({ data, onChange }: Props) {
+export default function ExperienceForm({ data, onChange, onEnhanceExperience, enhancingIndex = null }: Props) {
 
   const addExperience = () => {
     const newExperience: Experience = {
@@ -108,9 +110,9 @@ export default function ExperienceForm({ data, onChange }: Props) {
 
                                     <div className='flex items-center justify-between'>
                                         <label className='text-sm font-medium text-gray-800'>Job Description</label>
-                                        <button className='flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50'>
+                                        <button onClick={() => onEnhanceExperience?.(index, exp.description || "")} className='flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50'>
                                             <Sparkles className='w-3 h-3' />
-                                            Enhance with AI
+                                            {enhancingIndex === index ? "Enhancing..." : "Enhance with AI"}
                                         </button>
                                     </div>
 

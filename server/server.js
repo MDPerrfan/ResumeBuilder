@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 const { clerkMiddleware } = require("@clerk/express");
 const connectDB = require("./config/db");
 const resumeRoutes = require("./routes/resumeRoutes");
+const userRoutes = require("./routes/userRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 dotenv.config();
 
@@ -16,7 +18,10 @@ app.use(cors());
 app.use(express.json());
 app.use(clerkMiddleware());
 
+app.use("/api/resume", resumeRoutes);
 app.use("/api/resumes", resumeRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
