@@ -1,11 +1,12 @@
 import React from 'react'
-import { FilePenLineIcon, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
+import { FilePenLineIcon, Loader, PencilIcon, PlusIcon, TrashIcon, UploadCloudIcon, XIcon } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import { parseResumePdf } from '../utils/parseResumePdf';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { resumeApi, userApi } from '../utils/apiClient';
 import { clearGuestResumes, getGuestId, getGuestResumes, removeGuestResume, upsertGuestResume } from '../utils/resumeStorage';
 import InlineNotice from '../Components/InlineNotice';
+import Loading from '../Components/Loader';
 
 export default function Dashboard() {
 
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const [notice, setNotice] = React.useState({ type: '', message: '' });
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const { user, isSignedIn } = useUser();
   const { getToken } = useAuth();
@@ -58,6 +60,8 @@ export default function Dashboard() {
       setAllresume(getGuestResumes().map(normalizeResume));
     } catch (error) {
       notify(error.message || 'Failed to fetch resumes', 'error');
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -194,43 +198,43 @@ export default function Dashboard() {
     }
   };
 
-const editTitle = async (e) => {
-  e.preventDefault();
-  try {
-    if (!editResumeId) return;
-    if (isSignedIn) {
-      const token = await getToken();
-      await resumeApi.update(editResumeId, { title }, token);
-    } else {
-      const guestResume = (allresume || []).find((item) => item._id === editResumeId);
-      if (guestResume) {
-        upsertGuestResume({ ...guestResume, title, updatedAt: new Date().toISOString() });
-      }
-    }
-    setEditResumeId(null);
-    setTitle('');
-    fetchAllResume();
-  } catch (error) {
-    notify(error.message || 'Failed to update title', 'error');
-  }
-}
-
-const deleteResume = async (id) => {
-  const confirmDelete = window.confirm('Are you sure you want to delete this resume?');
-  if (confirmDelete){
+  const editTitle = async (e) => {
+    e.preventDefault();
     try {
+      if (!editResumeId) return;
       if (isSignedIn) {
         const token = await getToken();
-        await resumeApi.remove(id, token);
+        await resumeApi.update(editResumeId, { title }, token);
       } else {
-        removeGuestResume(id);
+        const guestResume = (allresume || []).find((item) => item._id === editResumeId);
+        if (guestResume) {
+          upsertGuestResume({ ...guestResume, title, updatedAt: new Date().toISOString() });
+        }
       }
+      setEditResumeId(null);
+      setTitle('');
       fetchAllResume();
     } catch (error) {
-      notify(error.message || 'Failed to delete resume', 'error');
+      notify(error.message || 'Failed to update title', 'error');
     }
   }
-}
+
+  const deleteResume = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this resume?');
+    if (confirmDelete) {
+      try {
+        if (isSignedIn) {
+          const token = await getToken();
+          await resumeApi.remove(id, token);
+        } else {
+          removeGuestResume(id);
+        }
+        fetchAllResume();
+      } catch (error) {
+        notify(error.message || 'Failed to delete resume', 'error');
+      }
+    }
+  }
   React.useEffect(() => {
     fetchAllResume();
   }, [isSignedIn]);
@@ -268,30 +272,39 @@ const deleteResume = async (id) => {
         <hr className='border-slate-300 my-6 sm:w-[305px]' />
 
         {/* Recent Resumes Section */}
-        <div className='grid grid-cols-2 sm:flex flex-wrap gap-4'>
-          {allresume.map((resume, index) => {
-            const baseColor = colors[index % colors.length];
-            return (
-              <button onClick={() => navigate(`/app/builder/${resume._id}`)} key={index} className='relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg cursor-pointer gap-2 border group hover:shadow-lg transition-all duration-300' style={{ background: `linear-gradient(135deg,${baseColor}10,${baseColor}40)`, borderColor: baseColor + '40' }}>
+        {isLoading ? (
+          <Loading />
+        ) : allresume.length === 0 ? (
+          <p className='text-sm text-slate-400 mt-2'>No resumes yet. Create your first one!</p>
+        ) : (
+          <div className='grid grid-cols-2 sm:flex flex-wrap gap-4'>
+            {allresume.map((resume, index) => {
+              const baseColor = colors[index % colors.length];
+              return (
+                <button onClick={() => navigate(`/app/builder/${resume._id}`)} key={index} className='relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg cursor-pointer gap-2 border group hover:shadow-lg transition-all duration-300' style={{ background: `linear-gradient(135deg,${baseColor}10,${baseColor}40)`, borderColor: baseColor + '40' }}>
 
-                <FilePenLineIcon className='size-7 group-hover:scale-105 transition-all' style={{ color: baseColor }} />
-                <p className='text-sm group-hover:scale-105 transition-all' style={{ color: baseColor }}>
-                  {resume.title}
-                </p>
-                <p className='text-[11px] text-slate-400 absolute bottom-2  group-hover:text-slate-500 transition-all duration-300 text-center' style={{ color: baseColor + '90' }}>
-                  Updated on {new Date(resume.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </p>
-                <p className='absolute bottom-7 text-[10px] font-medium' style={{ color: baseColor + 'AA' }}>
-                  {resume.completion || 0}% complete
-                </p>
-                <div onClick={e=>e.stopPropagation()} className='absolute top-1 right-1 group-hover:flex items-center hidden'>
-                  <TrashIcon onClick={() => deleteResume(resume._id)} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
-                  <PencilIcon onClick={()=>{setEditResumeId(resume._id); setTitle(resume.title)}} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  <FilePenLineIcon className='size-7 group-hover:scale-105 transition-all' style={{ color: baseColor }} />
+                  <p className='text-sm group-hover:scale-105 transition-all' style={{ color: baseColor }}>
+                    {resume.title}
+                  </p>
+                  <p className='text-[11px] text-slate-400 absolute bottom-2  group-hover:text-slate-500 transition-all duration-300 text-center' style={{ color: baseColor + '90' }}>
+                    Updated on {new Date(resume.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                  <p className='absolute bottom-7 text-[10px] font-medium' style={{ color: baseColor + 'AA' }}>
+                    {resume.completion || 0}% complete
+                  </p>
+                  <div onClick={e => e.stopPropagation()} className='absolute top-1 right-1 group-hover:flex items-center hidden'>
+                    <TrashIcon onClick={() => deleteResume(resume._id)} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
+                    <PencilIcon onClick={() => { setEditResumeId(resume._id); setTitle(resume.title) }} className='size-7 p-1.5 text-slate-700 hover:bg-white/50 transition-colors rounded' />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )
+
+        }
+
 
         {/* Create Resume Modal */}
         {
@@ -351,7 +364,7 @@ const deleteResume = async (id) => {
           )
         }
         {/* Edit Title Modal */}
-           {
+        {
           editResumeId && (
             <form onSubmit={editTitle} onClick={() => setEditResumeId('')} className='fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-10 flex items-center justify-center'>
               <div onClick={e => e.stopPropagation()} className='relative bg-slate-50 border shadow-md rounded-lg w-full max-w-sm p-6'>
