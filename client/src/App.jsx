@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { AuthenticateWithRedirectCallback, } from '@clerk/react'
+import { AuthenticateWithRedirectCallback, } from '@clerk/clerk-react'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
