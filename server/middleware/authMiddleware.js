@@ -1,4 +1,4 @@
-const getClerkUserId = (req) => req.auth?.userId || req.auth?.id || null;
+const getClerkUserId = (req) => req.auth()?.userId || req.auth()?.id || null;
 
 const getGuestId = (req) => {
   const bodyGuestId = req.body?.guestId;

@@ -9,8 +9,7 @@ const getClient = () => {
 
 const generateText = async (prompt) => {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const result = await model.generateContent(prompt);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });  const result = await model.generateContent(prompt);
   return result.response.text();
 };
 
