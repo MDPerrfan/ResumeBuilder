@@ -243,7 +243,6 @@ export default function Dashboard() {
     migrateGuestResumesIfNeeded();
   }, [migrateGuestResumesIfNeeded]);
 
-  isLoading && (<Loading/>)
 
   return (
     <div>
@@ -273,7 +272,9 @@ export default function Dashboard() {
         <hr className='border-slate-300 my-6 sm:w-[305px]' />
 
         {/* Recent Resumes Section */}
-        {allresume.length === 0 ? (
+        {isLoading ? (
+          <Loading />
+        ) : allresume.length === 0 ? (
           <p className='text-sm text-slate-400 mt-2'>No resumes yet. Create your first one!</p>
         ) : (
           <div className='grid grid-cols-2 sm:flex flex-wrap gap-4'>
