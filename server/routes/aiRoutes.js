@@ -12,9 +12,9 @@ const router = express.Router();
 
 router.use(requireAiAuth);
 router.post("/enhance-summary", enhanceSummary);
-router.post("/enhance-experience", enhanceExperience);
-router.post("/suggest-skills", suggestSkills);
-router.post("/tailor-resume", tailorResume);
-router.post("/generate-cover-letter", generateCoverLetter);
+// router.post("/enhance-experience", enhanceExperience);
+// router.post("/suggest-skills", suggestSkills);
+// router.post("/tailor-resume", tailorResume);
+// router.post("/generate-cover-letter", generateCoverLetter);
 
 module.exports = router;

@@ -112,7 +112,9 @@ export default function ResumeBuilder() {
       setIsEnhancingSummary(true);
       const token = await getToken();
       const result = await aiApi.enhanceSummary(resumeData.professional_summary, token);
-      updateField("professional_summary")(result.data?.text || resumeData.professional_summary);
+      const enhanced = result?.enhancedContent;
+      updateField("professional_summary")(enhanced || resumeData.professional_summary);
+     
     } catch (error) {
       notify(error.message || "Failed to enhance summary", "error");
     } finally {
@@ -313,8 +315,8 @@ export default function ResumeBuilder() {
                         onClick={() => moveActiveSection('up')}
                         disabled={!canMoveUp}
                         className={`text-xs px-2 py-1 rounded ${canMoveUp
-                            ? 'hover:bg-gray-100 text-gray-700'
-                            : 'text-gray-400 cursor-not-allowed'
+                          ? 'hover:bg-gray-100 text-gray-700'
+                          : 'text-gray-400 cursor-not-allowed'
                           }`}
                       >
                         Move Up
@@ -323,8 +325,8 @@ export default function ResumeBuilder() {
                         onClick={() => moveActiveSection('down')}
                         disabled={!canMoveDown}
                         className={`text-xs px-2 py-1 rounded ${canMoveDown
-                            ? 'hover:bg-gray-100 text-gray-700'
-                            : 'text-gray-400 cursor-not-allowed'
+                          ? 'hover:bg-gray-100 text-gray-700'
+                          : 'text-gray-400 cursor-not-allowed'
                           }`}
                       >
                         Move Down
@@ -346,8 +348,8 @@ export default function ResumeBuilder() {
                     onClick={() => setActiveSection((prev) => prev + 1)}
                     disabled={activeSection === sections.length - 1}
                     className={`${activeSection === sections.length - 1
-                        ? 'cursor-not-allowed opacity-50'
-                        : 'hover:bg-gray-50'
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'hover:bg-gray-50'
                       } flex items-center gap-1 px-2 py-0.5 rounded-lg text-sm font-medium text-gray-600 transition-all ml-2`}
                   >
                     Next
@@ -429,36 +431,36 @@ export default function ResumeBuilder() {
           <div className="lg:col-span-7 max-lg:mt-6">
             <div className="relative w-full">
               {/* FIX 8: Share button now has onClick handler + aria-label */}
-             
-                <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2 z-10">
+
+              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2 z-10">
                 {
-                  resumeData.public &&(
+                  resumeData.public && (
                     <button
-                    onClick={handleShare}
-                    aria-label="Share resume"
-                    className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
-                  >
-                    <Share2Icon className="size-4 text-gray-600" />
-                  </button>
+                      onClick={handleShare}
+                      aria-label="Share resume"
+                      className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
+                    >
+                      <Share2Icon className="size-4 text-gray-600" />
+                    </button>
                   )
                 }
-            
-                  <button onClick={changeVisibility} className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
-                    {
-                      resumeData.public ? <EyeIcon className='size-4' /> : <EyeOffIcon className='size-4' />
-                    }
-                    {resumeData.public ? "Public" : "Private"}
 
-                  </button>
-                    <button onClick={handleDownload}
-                    aria-label="Share resume"
-                    className="flex items-center justify-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
-                  >
-                    <DownloadIcon className="size-4 text-gray-600" />
-                    Download
-                  </button>
-                </div>
-              
+                <button onClick={changeVisibility} className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
+                  {
+                    resumeData.public ? <EyeIcon className='size-4' /> : <EyeOffIcon className='size-4' />
+                  }
+                  {resumeData.public ? "Public" : "Private"}
+
+                </button>
+                <button onClick={handleDownload}
+                  aria-label="Share resume"
+                  className="flex items-center justify-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
+                >
+                  <DownloadIcon className="size-4 text-gray-600" />
+                  Download
+                </button>
+              </div>
+
             </div>
 
             <ResumePreview

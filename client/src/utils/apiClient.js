@@ -1,70 +1,192 @@
 import { getGuestId } from "./resumeStorage";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+// -----------------------------
+// Helpers
+// -----------------------------
 const parseJson = async (response) => {
   try {
     return await response.json();
-  } catch (error) {
-    return {};
+  } catch {
+    return null;
   }
 };
 
-export const apiRequest = async (path, { method = "GET", body, token, requireAuth = false } = {}) => {
-  if (requireAuth && !token) {
-    throw new Error("Sign in to use AI features");
-  }
+const buildHeaders = ({ token, isGuest = false }) => {
+  const headers = {
+    "Content-Type": "application/json",
+  };
 
-  const headers = { "Content-Type": "application/json" };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-  } else {
+  } else if (isGuest) {
     headers["x-guest-id"] = getGuestId();
+  }
+
+  return headers;
+};
+
+// -----------------------------
+// Core request function
+// -----------------------------
+const request = async ({
+  path,
+  method = "GET",
+  body,
+  token,
+  requireAuth = false,
+  useGuest = false,
+}) => {
+  // 🚨 Strict auth check
+  if (requireAuth && !token) {
+    throw new Error("Authentication required");
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
-    headers,
-    body: body ? JSON.stringify(token ? body : { ...body, guestId: getGuestId() }) : undefined,
+    headers: buildHeaders({ token, isGuest: useGuest && !token }),
+    body: body ? JSON.stringify(body) : undefined,
   });
 
-  const result = await parseJson(response);
+  const data = await parseJson(response);
+
   if (!response.ok) {
-    throw new Error(result.message || "Request failed");
+    throw new Error(data?.message || `Request failed (${response.status})`);
   }
-  return result;
+
+  return data;
 };
 
+// -----------------------------
+// Resume API
+// -----------------------------
 export const resumeApi = {
-  list: (token) => apiRequest("/api/resume", { token }),
-  get: (id, token) => apiRequest(`/api/resume/${id}`, { token }),
-  create: (payload, token) => apiRequest("/api/resume", { method: "POST", body: payload, token }),
-  update: (id, payload, token) => apiRequest(`/api/resume/${id}`, { method: "PUT", body: payload, token }),
-  remove: (id, token) => apiRequest(`/api/resume/${id}`, { method: "DELETE", token }),
-  getPublic: (id) => apiRequest(`/api/resume/public/${id}`),
-  uploadImage: (image, token) => apiRequest("/api/resume/upload-image", { method: "POST", body: { image }, token }),
+  list: (token) =>
+    request({
+      path: "/api/resume",
+      token,
+      useGuest: !token,
+    }),
+
+  get: (id, token) =>
+    request({
+      path: `/api/resume/${id}`,
+      token,
+      useGuest: !token,
+    }),
+
+  create: (payload, token) =>
+    request({
+      path: "/api/resume",
+      method: "POST",
+      body: payload,
+      token,
+      useGuest: !token,
+    }),
+
+  update: (id, payload, token) =>
+    request({
+      path: `/api/resume/${id}`,
+      method: "PUT",
+      body: payload,
+      token,
+      useGuest: !token,
+    }),
+
+  remove: (id, token) =>
+    request({
+      path: `/api/resume/${id}`,
+      method: "DELETE",
+      token,
+      requireAuth: true,
+    }),
+
+  getPublic: (id) =>
+    request({
+      path: `/api/resume/public/${id}`,
+    }),
+
+  uploadImage: (image, token) =>
+    request({
+      path: "/api/resume/upload-image",
+      method: "POST",
+      body: { image },
+      token,
+      requireAuth: true,
+    }),
+
   migrateGuest: (guestId, token) =>
-    apiRequest("/api/resume/migrate-guest", { method: "POST", body: { guestId }, token, requireAuth: true }),
+    request({
+      path: "/api/resume/migrate-guest",
+      method: "POST",
+      body: { guestId },
+      token,
+      requireAuth: true,
+    }),
 };
 
+// -----------------------------
+// AI API
+// -----------------------------
 export const aiApi = {
   enhanceSummary: (summary, token) =>
-    apiRequest("/api/ai/enhance-summary", { method: "POST", body: { summary }, token, requireAuth: true }),
+    request({
+      path: "/api/ai/enhance-summary",
+      method: "POST",
+      body: { userContent: summary },
+      token,
+      requireAuth: true,
+    }),
+
   enhanceExperience: (experience, token) =>
-    apiRequest("/api/ai/enhance-experience", { method: "POST", body: { experience }, token, requireAuth: true }),
+    request({
+      path: "/api/ai/enhance-experience",
+      method: "POST",
+      body: { experience },
+      token,
+      requireAuth: true,
+    }),
+
   suggestSkills: (jobTitle, token) =>
-    apiRequest("/api/ai/suggest-skills", { method: "POST", body: { summary: jobTitle }, token, requireAuth: true }),
+    request({
+      path: "/api/ai/suggest-skills",
+      method: "POST",
+      body: { summary: jobTitle },
+      token,
+      requireAuth: true,
+    }),
+
   tailorResume: (jobDescription, resumeText, token) =>
-    apiRequest("/api/ai/tailor-resume", {
+    request({
+      path: "/api/ai/tailor-resume",
       method: "POST",
       body: { jobDescription, resumeText },
       token,
       requireAuth: true,
     }),
+
   generateCoverLetter: (payload, token) =>
-    apiRequest("/api/ai/generate-cover-letter", { method: "POST", body: payload, token, requireAuth: true }),
+    request({
+      path: "/api/ai/generate-cover-letter",
+      method: "POST",
+      body: payload,
+      token,
+      requireAuth: true,
+    }),
 };
 
+// -----------------------------
+// User API
+// -----------------------------
 export const userApi = {
-  sync: (payload, token) => apiRequest("/api/users/sync", { method: "POST", body: payload, token, requireAuth: true }),
+  sync: (payload, token) =>
+    request({
+      path: "/api/users/sync",
+      method: "POST",
+      body: payload,
+      token,
+      requireAuth: true,
+    }),
 };
