@@ -5,10 +5,6 @@
 import openai from "../config/ai.js";
 
 export const enhanceSummary = async (req, res) => {
-
-  console.log("BODY:", req.body);
-  console.log("Model:",process.env.OPENAI_MODEL)
-  
   try {
     const { userContent } = req.body;
 
