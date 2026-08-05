@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
+import Navbar from '../Navbar';
 
 export default function Hero() {
     const { isSignedIn } = useUser();
@@ -16,7 +17,6 @@ export default function Hero() {
         <div className="relative min-h-screen bg-[#0A0A0F] text-slate-100 overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
             {/* Ambient background lighting */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-tr from-indigo-600/20 via-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
-
             {/* Hero Main Content */}
             <section className="relative flex flex-col items-center pt-44 pb-20 px-4 max-w-5xl mx-auto text-center">
                 
