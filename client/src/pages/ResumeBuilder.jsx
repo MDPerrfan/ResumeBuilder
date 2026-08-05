@@ -5,7 +5,9 @@ import {
   LightbulbIcon, FolderIcon, ChevronLeft, ChevronRight, Share2Icon,
   EyeIcon,
   EyeOffIcon,
-  DownloadIcon
+  DownloadIcon,
+  Target,
+  FileText,
 } from 'lucide-react';
 import PersonalinfoForm from '../Components/PersonalinfoForm';
 import ResumePreview from '../Components/ResumePreview';
@@ -23,6 +25,8 @@ import { aiApi, resumeApi } from '../utils/apiClient';
 import { getGuestResumes, upsertGuestResume } from '../utils/resumeStorage';
 import InlineNotice from '../Components/InlineNotice';
 import AIGateModal from '../Components/AIGateModal';
+import AtsChecker from '../Components/AtsChecker';
+import CoverLetterGenerator from '../Components/CoverLetterGenerator';
 
 const DEFAULT_CV_SECTION_ORDER = ['experience', 'education', 'project', 'skills', 'languages', 'custom_sections'];
 
@@ -78,7 +82,14 @@ export default function ResumeBuilder() {
   const [saveStatus, setSaveStatus] = React.useState("Saved");
   const [notice, setNotice] = React.useState({ type: "", message: "" });
   const [showAiGate, setShowAiGate] = React.useState(false);
+  const [rightPanel, setRightPanel] = React.useState('preview');
   const hasLoadedRef = React.useRef(false);
+
+  const rightPanelTabs = [
+    { id: 'preview', label: 'Preview', icon: EyeIcon },
+    { id: 'ats', label: 'ATS Check', icon: Target },
+    { id: 'cover', label: 'Cover Letter', icon: FileText },
+  ];
 
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -427,48 +438,72 @@ export default function ResumeBuilder() {
             </div>
           </div>
 
-          {/* Right side — preview */}
-          <div className="lg:col-span-7 max-lg:mt-6">
-            <div className="relative w-full">
-              {/* FIX 8: Share button now has onClick handler + aria-label */}
-
-              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2 z-10">
-                {
-                  resumeData.public && (
-                    <button
-                      onClick={handleShare}
-                      aria-label="Share resume"
-                      className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
-                    >
-                      <Share2Icon className="size-4 text-gray-600" />
-                    </button>
-                  )
-                }
-
-                <button onClick={changeVisibility} className='flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs'>
-                  {
-                    resumeData.public ? <EyeIcon className='size-4' /> : <EyeOffIcon className='size-4' />
-                  }
-                  {resumeData.public ? "Public" : "Private"}
-
-                </button>
-                <button onClick={handleDownload}
-                  aria-label="Share resume"
-                  className="flex items-center justify-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
+          {/* Right side — preview / tools */}
+          <div className="lg:col-span-7 max-lg:mt-6 space-y-3">
+            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg border border-gray-200">
+              {rightPanelTabs.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setRightPanel(id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 text-xs font-medium rounded-md transition-colors ${
+                    rightPanel === id
+                      ? 'bg-white text-purple-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
-                  <DownloadIcon className="size-4 text-gray-600" />
-                  Download
+                  <Icon className="size-3.5" />
+                  {label}
                 </button>
-              </div>
-
+              ))}
             </div>
 
-            <ResumePreview
-              data={resumeData}
-              template={resumeData.template}
-              accentColor={resumeData.accent_color}
-              classes="mx-auto"
-            />
+            {rightPanel === 'preview' && (
+              <>
+                <div className="relative w-full">
+                  <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2 z-10">
+                    {resumeData.public && (
+                      <button
+                        onClick={handleShare}
+                        aria-label="Share resume"
+                        className="flex items-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
+                      >
+                        <Share2Icon className="size-4 text-gray-600" />
+                      </button>
+                    )}
+                    <button onClick={changeVisibility} className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg ring-purple-600 hover:ring transition-colors text-purple-600 text-xs">
+                      {resumeData.public ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
+                      {resumeData.public ? 'Public' : 'Private'}
+                    </button>
+                    <button
+                      onClick={handleDownload}
+                      aria-label="Download resume"
+                      className="flex items-center justify-center p-2 px-4 gap-2 text-xs bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
+                    >
+                      <DownloadIcon className="size-4 text-gray-600" />
+                      Download
+                    </button>
+                  </div>
+                </div>
+                <ResumePreview
+                  data={resumeData}
+                  template={resumeData.template}
+                  accentColor={resumeData.accent_color}
+                  classes="mx-auto"
+                />
+              </>
+            )}
+
+            {rightPanel === 'ats' && <AtsChecker resumeData={resumeData} />}
+
+            {rightPanel === 'cover' && (
+              <CoverLetterGenerator
+                resumeData={resumeData}
+                isSignedIn={isSignedIn}
+                getToken={getToken}
+                onRequireAuth={nudgeSignInForAi}
+                onError={(message) => notify(message, 'error')}
+              />
+            )}
           </div>
 
         </div>

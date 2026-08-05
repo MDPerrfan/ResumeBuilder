@@ -171,7 +171,10 @@ export const aiApi = {
     request({
       path: "/api/ai/generate-cover-letter",
       method: "POST",
-      body: payload,
+      body: {
+        jobDescription: payload.jobDescription,
+        resumeContext: payload.resumeContext,
+      },
       token,
       requireAuth: true,
     }),

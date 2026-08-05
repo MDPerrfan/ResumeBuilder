@@ -7,11 +7,18 @@ import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Preview from './pages/Preview'
 import Layout from './pages/Layout'
+import FeatureLayout from './pages/FeatureLayout'
+import AtsCheckPage from './pages/AtsCheckPage'
+import CoverLetterPage from './pages/CoverLetterPage'
 export default function App() {
   return (
     <>
       <Routes>
         <Route path='/' element={<Home />} />
+        <Route path='/features' element={<FeatureLayout />}>
+          <Route path='ats-check' element={<AtsCheckPage />} />
+          <Route path='cover-letter' element={<CoverLetterPage />} />
+        </Route>
         <Route path='/app' element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path='builder/:resumeId' element={<ResumeBuilder />} />
