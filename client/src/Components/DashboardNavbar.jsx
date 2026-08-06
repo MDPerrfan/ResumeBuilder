@@ -26,7 +26,8 @@ export default function DashboardNavbar() {
 
     return (
         <>
-            <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+            <header className="sticky top-0 z-40 max-w-7xl mx-auto  bg-slate-900/95 backdrop-blur-xl border border-slate-800/80  px-5 py-1 shadow-2xl shadow-indigo-950/20">
+
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     
                     {/* Brand / Home Link */}
@@ -36,12 +37,12 @@ export default function DashboardNavbar() {
                                 <path fillRule="evenodd" clipRule="evenodd" d="M10.0001 16L16.0001 12L10.0001 8V16Z" fill="#4F39F6"/>
                             </svg>
                         </div>
-                        <span className="font-semibold text-base tracking-tight text-slate-900">AiRESUME</span>
+                        <span className="font-semibold text-base tracking-tight text-gray-200">AiRESUME</span>
                     </Link>
 
                     {/* Desktop Right Side Controls */}
                     <div className="hidden sm:flex items-center gap-4">
-                        <Link to="/" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition">
+                        <Link to="/" className="text-sm font-medium text-gray-400 hover:text-gray-200 transition">
                             Home
                         </Link>
 
@@ -75,11 +76,9 @@ export default function DashboardNavbar() {
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-2">
-                                        <Link to='/login' className='px-4 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition'>
-                                            Sign in
-                                        </Link>
+                                       
                                         <Link to='/login' className='px-4 py-1.5 text-sm font-medium bg-violet-600 text-white rounded-full hover:bg-violet-700 transition shadow-sm'>
-                                            Get started
+                                            Sign In
                                         </Link>
                                     </div>
                                 )}
