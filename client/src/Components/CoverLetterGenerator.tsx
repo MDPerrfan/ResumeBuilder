@@ -106,115 +106,121 @@ export default function CoverLetterGenerator({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
-      <div>
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <FileText className="size-5 text-purple-600" />
-          Cover Letter
-        </h3>
-        <p className="text-sm text-gray-500 mt-1">
-          {allowUpload
-            ? "Upload your resume, then describe the role to generate a tailored letter."
-            : "Paste a job description or brief prompt to generate a tailored letter."}
-        </p>
-      </div>
-
-      {allowUpload && !resumeData && (
+    <div className="min-h-screen bg-[#0A0A0F] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pt-2 pb-2 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto bg-slate-900/70 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/40 backdrop-blur-xl space-y-6">
+        
+        {/* Header Title */}
         <div>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0] || null)}
-          />
-          {!fileName ? (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={parsing}
-              className="w-full flex flex-col items-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50/30 transition disabled:opacity-50"
-            >
-              {parsing ? (
-                <div className="size-8 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-              ) : (
-                <UploadCloud className="size-7 text-purple-500" />
-              )}
-              <span className="text-sm font-medium text-gray-700">
-                {parsing ? "Reading file..." : "Upload PDF or DOCX (optional)"}
-              </span>
-            </button>
-          ) : (
-            <div className="flex items-center justify-between p-3 bg-violet-50 border border-violet-200 rounded-lg">
-              <span className="text-sm text-violet-800 truncate">{fileName}</span>
+          <h3 className="flex items-center gap-2.5 text-xl font-semibold text-white tracking-tight">
+            <span className="p-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
+              <FileText className="size-5" />
+            </span>
+            Cover Letter
+          </h3>
+          <p className="text-sm text-slate-400 mt-2">
+            {allowUpload
+              ? "Upload your resume, then describe the role to generate a tailored letter."
+              : "Paste a job description or brief prompt to generate a tailored letter."}
+          </p>
+        </div>
+
+        {allowUpload && !resumeData && (
+          <div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="hidden"
+              onChange={(e) => handleFile(e.target.files?.[0] || null)}
+            />
+            {!fileName ? (
               <button
                 type="button"
-                onClick={clearUpload}
-                className="p-1 text-violet-600 hover:bg-violet-100 rounded"
-                aria-label="Remove file"
+                onClick={() => fileRef.current?.click()}
+                disabled={parsing}
+                className="w-full flex flex-col items-center gap-2 p-6 border border-dashed border-slate-800 rounded-xl bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-950 transition disabled:opacity-50 text-slate-400 hover:text-indigo-300 cursor-pointer"
               >
-                <X className="size-4" />
+                {parsing ? (
+                  <div className="size-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+                ) : (
+                  <UploadCloud className="size-7 text-indigo-400" />
+                )}
+                <span className="text-sm font-medium text-slate-300">
+                  {parsing ? "Reading file..." : "Upload PDF or DOCX (optional)"}
+                </span>
+              </button>
+            ) : (
+              <div className="flex items-center justify-between p-3.5 bg-indigo-950/30 border border-indigo-900/50 rounded-xl">
+                <span className="text-sm text-indigo-200 truncate">{fileName}</span>
+                <button
+                  type="button"
+                  onClick={clearUpload}
+                  className="p-1 text-indigo-400 hover:bg-indigo-900/50 rounded transition"
+                  aria-label="Remove file"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={5}
+          placeholder="Paste job description or describe the role you're applying for..."
+          className="w-full p-4 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+          disabled={loading}
+        />
+
+        {!hasResumeBasics && (
+          <div className="rounded-xl border border-amber-800/40 bg-amber-950/30 p-4 text-sm text-amber-300">
+            {allowUpload
+              ? "Upload a resume file so the letter matches your experience and tone."
+              : "Add your name, summary, or experience first so the letter matches your resume."}
+          </div>
+        )}
+
+        <button
+          onClick={handleGenerate}
+          disabled={loading || !prompt.trim()}
+          className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-medium rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-600/30 cursor-pointer"
+        >
+          <Sparkles className="size-4" />
+          {loading ? "Generating..." : "Generate Cover Letter"}
+        </button>
+
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="size-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          </div>
+        )}
+
+        {!loading && !coverLetter && (
+          <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/40 p-8 text-center">
+            <p className="text-sm text-slate-500">Your generated cover letter will appear here.</p>
+          </div>
+        )}
+
+        {!loading && coverLetter && (
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Result</p>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white px-3 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-800 transition"
+              >
+                <Copy className="size-3.5" />
+                {copied ? "Copied!" : "Copy"}
               </button>
             </div>
-          )}
-        </div>
-      )}
-
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        rows={5}
-        placeholder="Paste job description or describe the role you're applying for..."
-        className="w-full p-3 text-sm border border-gray-300 rounded-lg focus:ring focus:ring-purple-600 focus:border-purple-600 outline-none resize-none"
-        disabled={loading}
-      />
-
-      {!hasResumeBasics && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-          {allowUpload
-            ? "Upload a resume file so the letter matches your experience and tone."
-            : "Add your name, summary, or experience first so the letter matches your resume."}
-        </div>
-      )}
-
-      <button
-        onClick={handleGenerate}
-        disabled={loading || !prompt.trim()}
-        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple-50 text-purple-600 text-sm font-medium rounded-lg hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        <Sparkles className="size-4" />
-        {loading ? "Generating..." : "Generate Cover Letter"}
-      </button>
-
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="size-10 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-        </div>
-      )}
-
-      {!loading && !coverLetter && (
-        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-          <p className="text-sm text-gray-500">Your generated cover letter will appear here.</p>
-        </div>
-      )}
-
-      {!loading && coverLetter && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Result</p>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100"
-            >
-              <Copy className="size-3.5" />
-              {copied ? "Copied!" : "Copy"}
-            </button>
+            <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-300 whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto">
+              {coverLetter}
+            </div>
           </div>
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto">
-            {coverLetter}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

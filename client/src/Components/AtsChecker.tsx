@@ -28,21 +28,21 @@ type Props = {
 };
 
 const scoreColor = (score: number) => {
-  if (score >= 70) return "text-green-600";
-  if (score >= 40) return "text-amber-600";
-  return "text-red-500";
+  if (score >= 70) return "text-emerald-400";
+  if (score >= 40) return "text-amber-400";
+  return "text-rose-400";
 };
 
 const scoreRing = (score: number) => {
-  if (score >= 70) return "from-green-100 to-green-200 ring-green-300";
-  if (score >= 40) return "from-amber-100 to-amber-200 ring-amber-300";
-  return "from-red-100 to-red-200 ring-red-300";
+  if (score >= 70) return "from-emerald-950/40 to-emerald-900/20 border-emerald-500/30";
+  if (score >= 40) return "from-amber-950/40 to-amber-900/20 border-amber-500/30";
+  return "from-rose-950/40 to-rose-900/20 border-rose-500/30";
 };
 
 const priorityStyle = {
-  high: "border-red-200 bg-red-50",
-  medium: "border-amber-200 bg-amber-50",
-  low: "border-slate-200 bg-slate-50",
+  high: "border-rose-900/50 bg-rose-950/30 text-rose-200",
+  medium: "border-amber-900/50 bg-amber-950/30 text-amber-200",
+  low: "border-slate-800 bg-slate-950/50 text-slate-300",
 };
 
 export default function AtsChecker({ resumeData, onError }: Props) {
@@ -90,13 +90,15 @@ export default function AtsChecker({ resumeData, onError }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/40 backdrop-blur-xl space-y-6">
       <div>
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <Target className="size-5 text-purple-600" />
+        <h3 className="flex items-center gap-2.5 text-xl font-semibold text-white tracking-tight">
+          <span className="p-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
+            <Target className="size-5" />
+          </span>
           ATS Compatibility
         </h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-slate-400 mt-2">
           Upload a PDF or Word resume, then paste the job description to analyze.
         </p>
       </div>
@@ -115,25 +117,25 @@ export default function AtsChecker({ resumeData, onError }: Props) {
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={parsing}
-              className="w-full flex flex-col items-center gap-2 p-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50/30 transition disabled:opacity-50"
+              className="w-full flex flex-col items-center gap-2 p-8 border border-dashed border-slate-800 rounded-xl bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-950 transition disabled:opacity-50 text-slate-400 hover:text-indigo-300 cursor-pointer"
             >
               {parsing ? (
-                <div className="size-8 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                <div className="size-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
               ) : (
-                <UploadCloud className="size-8 text-purple-500" />
+                <UploadCloud className="size-8 text-indigo-400" />
               )}
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-slate-300">
                 {parsing ? "Reading file..." : "Upload PDF or DOCX"}
               </span>
-              <span className="text-xs text-gray-400">Max recommended: 5 MB</span>
+              <span className="text-xs text-slate-500">Max recommended: 5 MB</span>
             </button>
           ) : (
-            <div className="flex items-center justify-between p-3 bg-violet-50 border border-violet-200 rounded-lg">
-              <span className="text-sm text-violet-800 truncate">{fileName}</span>
+            <div className="flex items-center justify-between p-3.5 bg-indigo-950/30 border border-indigo-900/50 rounded-xl">
+              <span className="text-sm text-indigo-200 truncate">{fileName}</span>
               <button
                 type="button"
                 onClick={clearUpload}
-                className="p-1 text-violet-600 hover:bg-violet-100 rounded"
+                className="p-1 text-indigo-400 hover:bg-indigo-900/50 rounded transition"
                 aria-label="Remove file"
               >
                 <X className="size-4" />
@@ -148,19 +150,19 @@ export default function AtsChecker({ resumeData, onError }: Props) {
         onChange={(e) => setJobDescription(e.target.value)}
         rows={6}
         placeholder="Paste the job description here..."
-        className="w-full p-3 text-sm border border-gray-300 rounded-lg focus:ring focus:ring-purple-600 focus:border-purple-600 outline-none resize-none"
+        className="w-full p-4 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
       />
 
       {!hasJd && !hasResumeContent && (
-        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/40 p-8 text-center">
+          <p className="text-sm text-slate-500">
             Upload your resume and add a job description to begin.
           </p>
         </div>
       )}
 
       {hasJd && !hasResumeContent && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-xl border border-amber-800/40 bg-amber-950/30 p-4 text-sm text-amber-300">
           {resumeData
             ? "Your resume is mostly empty. Fill in sections to improve matching."
             : "Upload a resume file to analyze against this job description."}
@@ -170,71 +172,71 @@ export default function AtsChecker({ resumeData, onError }: Props) {
       {showResults && (
         <>
           <div
-            className={`flex items-center gap-4 p-4 rounded-lg bg-gradient-to-br ${scoreRing(result.score)} ring hover:ring transition-colors`}
+            className={`flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-br ${scoreRing(result.score)} border transition-colors shadow-lg`}
           >
             <div className={`text-4xl font-bold ${scoreColor(result.score)}`}>
               {result.score}%
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">Overall match</p>
-              <p className="text-xs text-gray-600">
+              <p className="text-sm font-semibold text-white">Overall match</p>
+              <p className="text-xs text-slate-400 mt-0.5">
                 {result.matched.length} of {result.total} keywords found
               </p>
             </div>
           </div>
 
           {result.breakdown.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            <div className="space-y-3 pt-2">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 Section breakdown
               </p>
               {result.breakdown.map((row) => (
                 <div key={row.id} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 w-24 shrink-0">{row.label}</span>
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <span className="text-xs text-slate-400 w-24 shrink-0 font-medium">{row.label}</span>
+                  <div className="flex-1 h-2.5 bg-slate-950 border border-slate-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-purple-600 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-indigo-600 to-violet-600 rounded-full transition-all duration-500"
                       style={{ width: `${row.pct}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-500 w-10 text-right">{row.pct}%</span>
+                  <span className="text-xs text-slate-400 w-10 text-right font-medium">{row.pct}%</span>
                 </div>
               ))}
             </div>
           )}
 
           {result.suggestions?.length > 0 && (
-            <div className="space-y-2">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                <Lightbulb className="size-3.5 text-amber-500" />
+            <div className="space-y-3 pt-2">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <Lightbulb className="size-3.5 text-amber-400" />
                 Suggested improvements
               </p>
               {result.suggestions.map((tip, i) => (
                 <div
                   key={i}
-                  className={`p-3 rounded-lg border text-sm ${priorityStyle[tip.priority as keyof typeof priorityStyle] || priorityStyle.low}`}
+                  className={`p-4 rounded-xl border text-sm ${priorityStyle[tip.priority as keyof typeof priorityStyle] || priorityStyle.low}`}
                 >
-                  <p className="font-medium text-gray-900">{tip.title}</p>
-                  <p className="text-gray-600 mt-0.5 text-xs leading-relaxed">{tip.detail}</p>
+                  <p className="font-semibold text-white">{tip.title}</p>
+                  <p className="text-slate-300 mt-1 text-xs leading-relaxed">{tip.detail}</p>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4 pt-2">
             <KeywordList
               title="Matched"
-              icon={<CheckCircle2 className="size-4 text-green-600" />}
+              icon={<CheckCircle2 className="size-4 text-emerald-400" />}
               words={result.matched}
               empty="No matches yet"
-              chipClass="bg-green-50 text-green-700 border-green-200"
+              chipClass="bg-emerald-950/40 text-emerald-300 border-emerald-900/50"
             />
             <KeywordList
               title="Missing"
-              icon={<AlertCircle className="size-4 text-amber-600" />}
+              icon={<AlertCircle className="size-4 text-amber-400" />}
               words={result.missing.slice(0, 24)}
               empty="All keywords matched"
-              chipClass="bg-amber-50 text-amber-700 border-amber-200"
+              chipClass="bg-amber-950/40 text-amber-300 border-amber-900/50"
             />
           </div>
         </>
@@ -257,17 +259,17 @@ function KeywordList({
   chipClass: string;
 }) {
   return (
-    <div>
-      <p className="flex items-center gap-1.5 text-xs font-medium text-gray-700 mb-2">
+    <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4">
+      <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mb-3">
         {icon}
         {title} ({words.length})
       </p>
-      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
         {words.length === 0 ? (
-          <span className="text-xs text-gray-400">{empty}</span>
+          <span className="text-xs text-slate-500 italic">{empty}</span>
         ) : (
           words.map((w) => (
-            <span key={w} className={`text-xs px-2 py-0.5 rounded border ${chipClass}`}>
+            <span key={w} className={`text-xs px-2.5 py-1 rounded-lg border font-medium ${chipClass}`}>
               {w}
             </span>
           ))

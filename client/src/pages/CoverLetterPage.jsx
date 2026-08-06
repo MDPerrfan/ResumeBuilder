@@ -11,22 +11,19 @@ export default function CoverLetterPage() {
   const [showAiGate, setShowAiGate] = React.useState(false)
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <InlineNotice notice={notice} onClose={() => setNotice({ type: '', message: '' })} />
-      <AIGateModal open={showAiGate} onClose={() => setShowAiGate(false)} />
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Cover Letter Generator</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Upload your resume and describe the role to generate a tailored cover letter.
-        </p>
+    <div className="max-w-6xl mx-auto px-4 py-8" >
+      <div className="w-full mx-auto space-y-4">
+        <InlineNotice notice={notice} onClose={() => setNotice({ type: '', message: '' })} />
+        <AIGateModal open={showAiGate} onClose={() => setShowAiGate(false)} />
+        
+        <CoverLetterGenerator
+          isSignedIn={isSignedIn}
+          getToken={getToken}
+          onRequireAuth={() => setShowAiGate(true)}
+          onError={(message) => setNotice({ type: 'error', message })}
+          allowUpload
+        />
       </div>
-      <CoverLetterGenerator
-        isSignedIn={isSignedIn}
-        getToken={getToken}
-        onRequireAuth={() => setShowAiGate(true)}
-        onError={(message) => setNotice({ type: 'error', message })}
-        allowUpload
-      />
     </div>
   )
 }

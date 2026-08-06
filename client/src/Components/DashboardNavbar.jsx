@@ -26,7 +26,7 @@ export default function DashboardNavbar() {
 
     return (
         <>
-            <header className="sticky top-0 z-40 max-w-7xl mx-auto  bg-slate-900/95 backdrop-blur-xl border border-slate-800/80  px-5 py-1 shadow-2xl shadow-indigo-950/20">
+            <header className="sticky top-0 z-40 w-full mx-auto  bg-slate-900/95 backdrop-blur-xl border border-slate-800/80  px-5 py-1 shadow-2xl shadow-indigo-950/20">
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     
